@@ -1,13 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSEO } from "@/hooks/useSEO";
-import MapboxBayombong from "@/components/MapboxBayombong";
+import OsmBayombong from "@/components/OsmBayombong";
 
 const MapPage = () => {
   useSEO({
     title: "SmartRice – Bayombong Map",
-    description:
-      "Interactive Mapbox map of Bayombong barangays with markers for each barangay.",
-    canonicalPath: "/map",
+      description: "Interactive OpenStreetMap map of Bayombong barangays with markers.",
+      canonicalPath: "/map",
   });
 
   return (
@@ -19,10 +18,9 @@ const MapPage = () => {
           </CardHeader>
           <CardContent>
             <p className="mb-4 text-sm text-muted-foreground">
-              Tip: Enter your Mapbox public token below to load the interactive map. We’ll add
-              Supabase Edge Function Secret support next so tokens aren’t needed on the client.
+              This interactive map uses OpenStreetMap data and requires no API token.
             </p>
-            <MapboxBayombong />
+            <OsmBayombong />
           </CardContent>
         </Card>
       </section>
