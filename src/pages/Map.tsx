@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import mapImage from "@/assets/bayombong-map.png";
 import { useSEO } from "@/hooks/useSEO";
+import MapboxBayombong from "@/components/MapboxBayombong";
 
 const MapPage = () => {
   useSEO({
     title: "SmartRice – Bayombong Map",
     description:
-      "Simplified map of Bayombong barangays. Future updates will enable barangay-specific data.",
+      "Interactive Mapbox map of Bayombong barangays with markers for each barangay.",
     canonicalPath: "/map",
   });
 
@@ -18,15 +18,11 @@ const MapPage = () => {
             <CardTitle>Bayombong Map</CardTitle>
           </CardHeader>
           <CardContent>
-            <img
-              src={mapImage}
-              alt="Bayombong barangay boundaries map"
-              loading="lazy"
-              className="w-full h-auto rounded-md"
-            />
-            <p className="mt-4 text-sm text-muted-foreground">
-              Tip: Barangay clicks and details are coming soon.
+            <p className="mb-4 text-sm text-muted-foreground">
+              Tip: Enter your Mapbox public token below to load the interactive map. We’ll add
+              Supabase Edge Function Secret support next so tokens aren’t needed on the client.
             </p>
+            <MapboxBayombong />
           </CardContent>
         </Card>
       </section>
