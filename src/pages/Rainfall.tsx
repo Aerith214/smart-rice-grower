@@ -40,9 +40,29 @@ const monthLabels = [
   "Dec",
 ];
 
+const fullMonthNames = [
+  "January",
+  "February", 
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const getDaysInMonth = (month: number, year: number) => {
+  return new Date(year, month, 0).getDate();
+};
+
 type RainfallResponse = {
   year: number;
   monthly_mm: number[]; // 12 values
+  daily_mm?: { [month: number]: number[] }; // Optional daily data by month
 };
 
 const years = [2023, 2024];
@@ -55,6 +75,7 @@ const RainfallPage = () => {
   });
 
   const [year, setYear] = useState<number>(2024);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [data, setData] = useState<RainfallResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,6 +140,51 @@ const RainfallPage = () => {
     };
   }, [data, year]);
 
+  // Generate mock daily data for demonstration
+  const generateDailyData = (monthIndex: number) => {
+    const daysInMonth = getDaysInMonth(monthIndex + 1, year);
+    const monthlyTotal = data?.monthly_mm[monthIndex] || 0;
+    const dailyData = [];
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      // Distribute monthly total across days with some randomization
+      const baseAmount = monthlyTotal / daysInMonth;
+      const variation = (Math.random() - 0.5) * baseAmount * 0.8;
+      dailyData.push(Math.max(0, baseAmount + variation));
+    }
+    
+    return dailyData;
+  };
+
+  const dailyChartData = useMemo(() => {
+    if (selectedMonth === null || !data) return null;
+    
+    const root = getComputedStyle(document.documentElement);
+    const color = (name: string, a?: number) => {
+      const v = root.getPropertyValue(name).trim();
+      return a != null ? `hsl(${v} / ${a})` : `hsl(${v})`;
+    };
+    
+    const daysInMonth = getDaysInMonth(selectedMonth + 1, year);
+    const dayLabels = Array.from({ length: daysInMonth }, (_, i) => `Day ${i + 1}`);
+    const dailyData = generateDailyData(selectedMonth);
+    
+    return {
+      labels: dayLabels,
+      datasets: [
+        {
+          label: `Daily Rainfall - ${fullMonthNames[selectedMonth]} ${year}`,
+          data: dailyData,
+          borderColor: color("--accent"),
+          backgroundColor: color("--accent", 0.15),
+          tension: 0.3,
+          fill: true,
+          pointRadius: 2,
+        },
+      ],
+    };
+  }, [selectedMonth, data, year]);
+
   const chartOptions = useMemo(() => {
     const root = getComputedStyle(document.documentElement);
     const color = (name: string, a?: number) => {
@@ -155,22 +221,42 @@ const RainfallPage = () => {
     <main className="container mx-auto py-10 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold">Rainfall Data</h1>
-        <div>
-          <label htmlFor="year" className="mr-3 text-sm text-muted-foreground">
-            Select year
-          </label>
-          <select
-            id="year"
-            className="rounded-md border bg-background px-3 py-2"
-            value={year}
-            onChange={(e) => setYear(parseInt(e.target.value))}
-          >
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+        <div className="flex gap-4">
+          <div>
+            <label htmlFor="year" className="mr-3 text-sm text-muted-foreground">
+              Select year
+            </label>
+            <select
+              id="year"
+              className="rounded-md border bg-background px-3 py-2"
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value))}
+            >
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="month" className="mr-3 text-sm text-muted-foreground">
+              Select month
+            </label>
+            <select
+              id="month"
+              className="rounded-md border bg-background px-3 py-2"
+              value={selectedMonth ?? ""}
+              onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value) : null)}
+            >
+              <option value="">All Months</option>
+              {fullMonthNames.map((month, index) => (
+                <option key={index} value={index}>
+                  {month}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -213,6 +299,27 @@ const RainfallPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {selectedMonth !== null && dailyChartData && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Daily Rainfall - {fullMonthNames[selectedMonth]} {year}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading && (
+              <p className="text-sm text-muted-foreground">Loading chart…</p>
+            )}
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
+            {!loading && !error && (
+              <div className="h-[360px]">
+                <Line data={dailyChartData} options={chartOptions} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </main>
   );
 };
