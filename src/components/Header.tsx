@@ -42,6 +42,17 @@ const Header = () => {
           >
             Recommendation
           </NavLink>
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              cn(
+                "transition-opacity",
+                isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+              )
+            }
+          >
+            Admin
+          </NavLink>
         </div>
       </nav>
     </header>

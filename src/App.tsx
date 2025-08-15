@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import MapPage from "@/pages/Map";
 import RainfallPage from "@/pages/Rainfall";
 import RecommendationPage from "@/pages/Recommendation";
+import AdminPage from "@/pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/map" element={<MapPage />} />
           <Route path="/rainfall" element={<RainfallPage />} />
           <Route path="/recommendation" element={<RecommendationPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
