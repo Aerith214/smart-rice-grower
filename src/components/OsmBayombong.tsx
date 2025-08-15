@@ -4,6 +4,7 @@ import {
   TileLayer,
   Marker,
   Popup,
+  Circle,
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
@@ -136,15 +137,36 @@ const OsmBayombong: React.FC = () => {
         />
 
         {markers.map((m) => (
-          <Marker key={`${m.name}-${m.lat}-${m.lon}`} position={[m.lat, m.lon]} eventHandlers={{
-            click: () => setFocus({ lat: m.lat, lon: m.lon }),
-          }}>
-            <Popup>
-              <strong>{m.name}</strong>
-              <br />
-              <span className="text-sm opacity-70">{m.display}</span>
-            </Popup>
-          </Marker>
+          <div key={`${m.name}-${m.lat}-${m.lon}`}>
+            <Circle
+              center={[m.lat, m.lon]}
+              radius={500}
+              pathOptions={{
+                color: 'hsl(var(--primary))',
+                fillColor: 'hsl(var(--primary))',
+                fillOpacity: 0.3,
+                weight: 2,
+              }}
+              eventHandlers={{
+                click: () => setFocus({ lat: m.lat, lon: m.lon }),
+              }}
+            >
+              <Popup>
+                <strong>{m.name}</strong>
+                <br />
+                <span className="text-sm opacity-70">{m.display}</span>
+              </Popup>
+            </Circle>
+            <Marker position={[m.lat, m.lon]} eventHandlers={{
+              click: () => setFocus({ lat: m.lat, lon: m.lon }),
+            }}>
+              <Popup>
+                <strong>{m.name}</strong>
+                <br />
+                <span className="text-sm opacity-70">{m.display}</span>
+              </Popup>
+            </Marker>
+          </div>
         ))}
 
         {focus && <RecenterOnClick lat={focus.lat} lon={focus.lon} />}
