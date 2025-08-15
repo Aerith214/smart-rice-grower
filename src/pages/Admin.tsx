@@ -7,6 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
+interface DailyRainfallData {
+  date: string;
+  amount: number;
+}
+
 interface RainfallData {
   month: string;
   amount: number;
@@ -36,9 +41,12 @@ const Admin = () => {
     { month: "July", amount: 0 },
     { month: "August", amount: 0 },
     { month: "September", amount: 0 },
-    { month: "October", amount: 0 },
     { month: "November", amount: 0 },
     { month: "December", amount: 0 },
+  ]);
+
+  const [dailyRainfallData, setDailyRainfallData] = useState<DailyRainfallData[]>([
+    { date: "", amount: 0 }
   ]);
 
   const [recommendations, setRecommendations] = useState<RecommendationData>({
@@ -50,6 +58,22 @@ const Admin = () => {
     const updated = [...rainfallData];
     updated[index].amount = value;
     setRainfallData(updated);
+  };
+
+  const handleDailyRainfallChange = (index: number, field: 'date' | 'amount', value: string | number) => {
+    const updated = [...dailyRainfallData];
+    updated[index] = { ...updated[index], [field]: value };
+    setDailyRainfallData(updated);
+  };
+
+  const handleAddDailyRainfall = () => {
+    setDailyRainfallData([...dailyRainfallData, { date: "", amount: 0 }]);
+  };
+
+  const handleRemoveDailyRainfall = (index: number) => {
+    if (dailyRainfallData.length > 1) {
+      setDailyRainfallData(dailyRainfallData.filter((_, i) => i !== index));
+    }
   };
 
   const handleAddRecommendation = (type: 'planting' | 'harvesting') => {
@@ -106,8 +130,9 @@ const Admin = () => {
         </header>
 
         <Tabs defaultValue="rainfall" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="rainfall">Rainfall Data</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="rainfall">Monthly Rainfall</TabsTrigger>
+            <TabsTrigger value="daily-rainfall">Daily Rainfall</TabsTrigger>
             <TabsTrigger value="recommendations">Planting Recommendations</TabsTrigger>
           </TabsList>
 
@@ -144,6 +169,80 @@ const Admin = () => {
                 <div className="mt-6">
                   <Button onClick={handleSaveRainfall} className="w-full md:w-auto">
                     Save Rainfall Data
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="daily-rainfall" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Daily Rainfall Data (2025)</CardTitle>
+                <CardDescription>
+                  Enter rainfall amounts for specific dates in millimeters (mm).
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {dailyRainfallData.map((data, index) => (
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                      <div className="space-y-2">
+                        <Label htmlFor={`date-${index}`}>Date</Label>
+                        <Input
+                          id={`date-${index}`}
+                          type="date"
+                          value={data.date}
+                          onChange={(e) => handleDailyRainfallChange(index, 'date', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`daily-rainfall-${index}`}>Rainfall Amount</Label>
+                        <div className="relative">
+                          <Input
+                            id={`daily-rainfall-${index}`}
+                            type="number"
+                            value={data.amount}
+                            onChange={(e) => handleDailyRainfallChange(index, 'amount', parseFloat(e.target.value) || 0)}
+                            placeholder="0"
+                            min="0"
+                            step="0.1"
+                          />
+                          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+                            mm
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {dailyRainfallData.length > 1 && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleRemoveDailyRainfall(index)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleAddDailyRainfall}
+                  >
+                    Add Daily Entry
+                  </Button>
+                  <Button onClick={() => {
+                    const filteredData = dailyRainfallData.filter(d => d.date.trim() !== "");
+                    console.log("Saving daily rainfall data:", filteredData);
+                    toast({
+                      title: "Daily Rainfall Data Saved",
+                      description: "The daily rainfall data has been saved successfully.",
+                    });
+                  }}>
+                    Save Daily Rainfall Data
                   </Button>
                 </div>
               </CardContent>

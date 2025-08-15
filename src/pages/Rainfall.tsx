@@ -7,17 +7,19 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Tooltip,
   Legend,
   Filler,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Tooltip,
   Legend,
   Filler
@@ -75,7 +77,7 @@ const RainfallPage = () => {
     load();
   }, [year]);
 
-  const chartData = useMemo(() => {
+  const lineChartData = useMemo(() => {
     const root = getComputedStyle(document.documentElement);
     const color = (name: string, a?: number) => {
       const v = root.getPropertyValue(name).trim();
@@ -92,6 +94,26 @@ const RainfallPage = () => {
           tension: 0.3,
           fill: true,
           pointRadius: 3,
+        },
+      ],
+    };
+  }, [data, year]);
+
+  const barChartData = useMemo(() => {
+    const root = getComputedStyle(document.documentElement);
+    const color = (name: string, a?: number) => {
+      const v = root.getPropertyValue(name).trim();
+      return a != null ? `hsl(${v} / ${a})` : `hsl(${v})`;
+    };
+    return {
+      labels: monthLabels,
+      datasets: [
+        {
+          label: `Monthly Total (${year})`,
+          data: data?.monthly_mm ?? Array(12).fill(0),
+          backgroundColor: color("--primary", 0.8),
+          borderColor: color("--primary"),
+          borderWidth: 1,
         },
       ],
     };
@@ -130,28 +152,32 @@ const RainfallPage = () => {
   }, []);
 
   return (
-    <main className="container mx-auto py-10">
-      <section>
+    <main className="container mx-auto py-10 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-bold">Rainfall Data</h1>
+        <div>
+          <label htmlFor="year" className="mr-3 text-sm text-muted-foreground">
+            Select year
+          </label>
+          <select
+            id="year"
+            className="rounded-md border bg-background px-3 py-2"
+            value={year}
+            onChange={(e) => setYear(parseInt(e.target.value))}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle>Rainfall Data</CardTitle>
-            <div>
-              <label htmlFor="year" className="mr-3 text-sm text-muted-foreground">
-                Select year
-              </label>
-              <select
-                id="year"
-                className="rounded-md border bg-background px-3 py-2"
-                value={year}
-                onChange={(e) => setYear(parseInt(e.target.value))}
-              >
-                {years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <CardHeader>
+            <CardTitle>Monthly Rainfall Trend</CardTitle>
           </CardHeader>
           <CardContent>
             {loading && (
@@ -162,12 +188,31 @@ const RainfallPage = () => {
             )}
             {!loading && !error && (
               <div className="h-[360px]">
-                <Line data={chartData} options={chartOptions} />
+                <Line data={lineChartData} options={chartOptions} />
               </div>
             )}
           </CardContent>
         </Card>
-      </section>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Rainfall Totals</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading && (
+              <p className="text-sm text-muted-foreground">Loading chart…</p>
+            )}
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
+            {!loading && !error && (
+              <div className="h-[360px]">
+                <Bar data={barChartData} options={chartOptions} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </main>
   );
 };
