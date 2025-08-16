@@ -1,7 +1,11 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 const Header = () => {
+  const { user, signOut } = useAuth();
+
   return (
     <header className="bg-primary text-primary-foreground">
       <nav className="container mx-auto flex items-center justify-between py-4">
@@ -42,17 +46,41 @@ const Header = () => {
           >
             Recommendation
           </NavLink>
-          <NavLink
-            to="/admin"
-            className={({ isActive }) =>
-              cn(
-                "transition-opacity",
-                isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
-              )
-            }
-          >
-            Admin
-          </NavLink>
+          {user ? (
+            <>
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  cn(
+                    "transition-opacity",
+                    isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+                  )
+                }
+              >
+                Admin
+              </NavLink>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={signOut}
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <NavLink
+              to="/auth"
+              className={({ isActive }) =>
+                cn(
+                  "transition-opacity",
+                  isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+                )
+              }
+            >
+              Login
+            </NavLink>
+          )}
         </div>
       </nav>
     </header>

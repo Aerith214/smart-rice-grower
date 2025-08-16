@@ -10,27 +10,32 @@ import MapPage from "@/pages/Map";
 import RainfallPage from "@/pages/Rainfall";
 import RecommendationPage from "@/pages/Recommendation";
 import AdminPage from "@/pages/Admin";
+import AuthPage from "@/pages/Auth";
+import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Header />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/map" element={<MapPage />} />
-          <Route path="/rainfall" element={<RainfallPage />} />
-          <Route path="/recommendation" element={<RecommendationPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Header />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/map" element={<MapPage />} />
+            <Route path="/rainfall" element={<RainfallPage />} />
+            <Route path="/recommendation" element={<RecommendationPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

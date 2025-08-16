@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DailyRainfallData {
   date: string;
@@ -24,12 +27,40 @@ interface RecommendationData {
 
 const Admin = () => {
   const { toast } = useToast();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Helper function to convert month names to numbers
+  const getMonthNumber = (monthName: string): number => {
+    const months = {
+      "January": 1, "February": 2, "March": 3, "April": 4,
+      "May": 5, "June": 6, "July": 7, "August": 8,
+      "September": 9, "October": 10, "November": 11, "December": 12
+    };
+    return months[monthName as keyof typeof months] || 1;
+  };
   
   useSEO({
     title: "Admin Panel - SmartRice",
     description: "Manage rainfall data and planting recommendations for rice farming in Bayombong.",
     canonicalPath: "/admin",
   });
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <main className="container mx-auto py-8 px-4">
+        <div className="text-center">Loading...</div>
+      </main>
+    );
+  }
 
   const [rainfallData, setRainfallData] = useState<RainfallData[]>([
     { month: "January", amount: 0 },
@@ -53,6 +84,11 @@ const Admin = () => {
     planting: [""],
     harvesting: [""],
   });
+
+  // Don't render anything if not authenticated
+  if (!user) {
+    return null;
+  }
 
   const handleRainfallChange = (index: number, value: number) => {
     const updated = [...rainfallData];
@@ -97,26 +133,156 @@ const Admin = () => {
     }));
   };
 
-  const handleSaveRainfall = () => {
-    // TODO: Save to database when connected
-    console.log("Saving rainfall data:", rainfallData);
-    toast({
-      title: "Rainfall Data Saved",
-      description: "The rainfall data has been saved successfully.",
-    });
+  const handleSaveRainfall = async () => {
+    try {
+      const currentYear = new Date().getFullYear();
+      
+      // Prepare data for database
+      const dataToSave = rainfallData
+        .filter(data => data.amount > 0)
+        .map(data => ({
+          month: getMonthNumber(data.month),
+          year: currentYear,
+          rainfall_amount: data.amount,
+        }));
+
+      if (dataToSave.length === 0) {
+        toast({
+          title: "No Data to Save",
+          description: "Please enter rainfall amounts before saving.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Delete existing data for the current year first
+      await supabase
+        .from('monthly_rainfall')
+        .delete()
+        .eq('year', currentYear);
+
+      // Insert new data
+      const { error } = await supabase
+        .from('monthly_rainfall')
+        .insert(dataToSave);
+
+      if (error) throw error;
+
+      toast({
+        title: "Rainfall Data Saved",
+        description: "The rainfall data has been saved successfully to the database.",
+      });
+    } catch (error: any) {
+      console.error('Error saving rainfall data:', error);
+      toast({
+        title: "Save Error",
+        description: error.message || "Failed to save rainfall data",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleSaveRecommendations = () => {
-    // TODO: Save to database when connected
-    const filteredRecommendations = {
-      planting: recommendations.planting.filter(date => date.trim() !== ""),
-      harvesting: recommendations.harvesting.filter(date => date.trim() !== ""),
-    };
-    console.log("Saving recommendations:", filteredRecommendations);
-    toast({
-      title: "Recommendations Saved",
-      description: "The planting recommendations have been saved successfully.",
-    });
+  const handleSaveRecommendations = async () => {
+    try {
+      const filteredRecommendations = {
+        planting: recommendations.planting.filter(date => date.trim() !== ""),
+        harvesting: recommendations.harvesting.filter(date => date.trim() !== ""),
+      };
+
+      if (filteredRecommendations.planting.length === 0 && filteredRecommendations.harvesting.length === 0) {
+        toast({
+          title: "No Data to Save",
+          description: "Please enter at least one recommendation before saving.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Clear existing recommendations
+      await supabase
+        .from('planting_recommendations')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      // Prepare data for database
+      const dataToSave = [
+        ...filteredRecommendations.planting.map(date => ({
+          planting_date: date,
+          harvesting_date: null,
+        })),
+        ...filteredRecommendations.harvesting.map(date => ({
+          planting_date: null,
+          harvesting_date: date,
+        })),
+      ];
+
+      // Insert new recommendations
+      const { error } = await supabase
+        .from('planting_recommendations')
+        .insert(dataToSave);
+
+      if (error) throw error;
+
+      toast({
+        title: "Recommendations Saved",
+        description: "The planting recommendations have been saved successfully to the database.",
+      });
+    } catch (error: any) {
+      console.error('Error saving recommendations:', error);
+      toast({
+        title: "Save Error",
+        description: error.message || "Failed to save recommendations",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveDailyRainfall = async () => {
+    try {
+      const filteredData = dailyRainfallData.filter(d => d.date.trim() !== "" && d.amount > 0);
+      
+      if (filteredData.length === 0) {
+        toast({
+          title: "No Data to Save",
+          description: "Please enter valid dates and rainfall amounts before saving.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Prepare data for database
+      const dataToSave = filteredData.map(data => ({
+        date: data.date,
+        rainfall_amount: data.amount,
+      }));
+
+      // Delete existing data for the same dates first
+      for (const data of dataToSave) {
+        await supabase
+          .from('daily_rainfall')
+          .delete()
+          .eq('date', data.date);
+      }
+
+      // Insert new data
+      const { error } = await supabase
+        .from('daily_rainfall')
+        .insert(dataToSave);
+
+      if (error) throw error;
+
+      toast({
+        title: "Daily Rainfall Data Saved",
+        description: "The daily rainfall data has been saved successfully to the database.",
+      });
+    } catch (error: any) {
+      console.error('Error saving daily rainfall data:', error);
+      toast({
+        title: "Save Error",
+        description: error.message || "Failed to save daily rainfall data",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -234,14 +400,7 @@ const Admin = () => {
                   >
                     Add Daily Entry
                   </Button>
-                  <Button onClick={() => {
-                    const filteredData = dailyRainfallData.filter(d => d.date.trim() !== "");
-                    console.log("Saving daily rainfall data:", filteredData);
-                    toast({
-                      title: "Daily Rainfall Data Saved",
-                      description: "The daily rainfall data has been saved successfully.",
-                    });
-                  }}>
+                  <Button onClick={handleSaveDailyRainfall}>
                     Save Daily Rainfall Data
                   </Button>
                 </div>

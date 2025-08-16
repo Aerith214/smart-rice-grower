@@ -1,8 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const { user } = useAuth();
+  
   useSEO({
     title: "SmartRice – Welcome",
     description:
@@ -34,6 +37,15 @@ const Index = () => {
               <Link to="/recommendation" className="rounded-md border px-4 py-2">
                 Recommendation
               </Link>
+              {user ? (
+                <Link to="/admin" className="rounded-md border px-4 py-2">
+                  Admin Panel
+                </Link>
+              ) : (
+                <Link to="/auth" className="rounded-md border px-4 py-2">
+                  Admin Login
+                </Link>
+              )}
             </div>
           </CardContent>
         </Card>
