@@ -14,7 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_rainfall: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          rainfall_amount: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          rainfall_amount?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          rainfall_amount?: number | null
+        }
+        Relationships: []
+      }
+      monthly_rainfall: {
+        Row: {
+          created_at: string | null
+          id: string
+          month: number | null
+          rainfall_amount: number | null
+          year: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          month?: number | null
+          rainfall_amount?: number | null
+          year?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          month?: number | null
+          rainfall_amount?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      planting_recommendations: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          harvesting_date: string | null
+          id: string
+          planting_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          harvesting_date?: string | null
+          id?: string
+          planting_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          harvesting_date?: string | null
+          id?: string
+          planting_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planting_recommendations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          id: string
+          password: string
+          role: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          password: string
+          role?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          password?: string
+          role?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
