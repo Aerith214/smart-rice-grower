@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSEO } from "@/hooks/useSEO";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -59,13 +60,19 @@ const getDaysInMonth = (month: number, year: number) => {
   return new Date(year, month, 0).getDate();
 };
 
-type RainfallResponse = {
+type RainfallData = {
+  month: number;
   year: number;
-  monthly_mm: number[]; // 12 values
-  daily_mm?: { [month: number]: number[] }; // Optional daily data by month
+  rainfall_amount: number;
 };
 
-const years = [2023, 2024];
+type DailyRainfallData = {
+  date: string;
+  rainfall_amount: number;
+};
+
+// Generate years from 2015 to present
+const years = Array.from({ length: new Date().getFullYear() - 2014 }, (_, i) => 2015 + i);
 
 const RainfallPage = () => {
   useSEO({
@@ -74,28 +81,46 @@ const RainfallPage = () => {
     canonicalPath: "/rainfall",
   });
 
-  const [year, setYear] = useState<number>(2024);
+  const [year, setYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [data, setData] = useState<RainfallResponse | null>(null);
+  const [monthlyData, setMonthlyData] = useState<number[]>(Array(12).fill(0));
+  const [dailyData, setDailyData] = useState<DailyRainfallData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const load = async () => {
+    const loadData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/data/rainfall-${year}.json`);
-        if (!res.ok) throw new Error("Failed to load rainfall data");
-        const json = (await res.json()) as RainfallResponse;
-        setData(json);
+        // Fetch daily rainfall data from Supabase
+        const { data: dailyRainfall, error: dailyError } = await supabase
+          .from('daily_rainfall')
+          .select('*')
+          .gte('date', `${year}-01-01`)
+          .lt('date', `${year + 1}-01-01`)
+          .order('date');
+
+        if (dailyError) throw dailyError;
+
+        setDailyData(dailyRainfall || []);
+
+        // Calculate monthly totals from daily data
+        const monthlyTotals = Array(12).fill(0);
+        dailyRainfall?.forEach(record => {
+          const month = new Date(record.date).getMonth();
+          monthlyTotals[month] += record.rainfall_amount || 0;
+        });
+
+        setMonthlyData(monthlyTotals);
       } catch (e: any) {
         setError(e.message);
+        console.error('Error loading rainfall data:', e);
       } finally {
         setLoading(false);
       }
     };
-    load();
+    loadData();
   }, [year]);
 
   const lineChartData = useMemo(() => {
@@ -109,7 +134,7 @@ const RainfallPage = () => {
       datasets: [
         {
           label: `Rainfall (${year})`,
-          data: data?.monthly_mm ?? Array(12).fill(0),
+          data: monthlyData,
           borderColor: color("--primary"),
           backgroundColor: color("--primary", 0.15),
           tension: 0.3,
@@ -118,7 +143,7 @@ const RainfallPage = () => {
         },
       ],
     };
-  }, [data, year]);
+  }, [monthlyData, year]);
 
   const barChartData = useMemo(() => {
     const root = getComputedStyle(document.documentElement);
@@ -131,33 +156,17 @@ const RainfallPage = () => {
       datasets: [
         {
           label: `Monthly Total (${year})`,
-          data: data?.monthly_mm ?? Array(12).fill(0),
+          data: monthlyData,
           backgroundColor: color("--primary", 0.8),
           borderColor: color("--primary"),
           borderWidth: 1,
         },
       ],
     };
-  }, [data, year]);
-
-  // Generate mock daily data for demonstration
-  const generateDailyData = (monthIndex: number) => {
-    const daysInMonth = getDaysInMonth(monthIndex + 1, year);
-    const monthlyTotal = data?.monthly_mm[monthIndex] || 0;
-    const dailyData = [];
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-      // Distribute monthly total across days with some randomization
-      const baseAmount = monthlyTotal / daysInMonth;
-      const variation = (Math.random() - 0.5) * baseAmount * 0.8;
-      dailyData.push(Math.max(0, baseAmount + variation));
-    }
-    
-    return dailyData;
-  };
+  }, [monthlyData, year]);
 
   const dailyChartData = useMemo(() => {
-    if (selectedMonth === null || !data) return null;
+    if (selectedMonth === null) return null;
     
     const root = getComputedStyle(document.documentElement);
     const color = (name: string, a?: number) => {
@@ -165,16 +174,28 @@ const RainfallPage = () => {
       return a != null ? `hsl(${v} / ${a})` : `hsl(${v})`;
     };
     
-    const daysInMonth = getDaysInMonth(selectedMonth + 1, year);
-    const dayLabels = Array.from({ length: daysInMonth }, (_, i) => `Day ${i + 1}`);
-    const dailyData = generateDailyData(selectedMonth);
+    // Filter daily data for selected month
+    const monthlyDailyData = dailyData.filter(record => {
+      const date = new Date(record.date);
+      return date.getMonth() === selectedMonth && date.getFullYear() === year;
+    });
+    
+    // Sort by date
+    monthlyDailyData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    const dayLabels = monthlyDailyData.map(record => {
+      const date = new Date(record.date);
+      return `${date.getDate()}`;
+    });
+    
+    const dailyAmounts = monthlyDailyData.map(record => record.rainfall_amount);
     
     return {
       labels: dayLabels,
       datasets: [
         {
           label: `Daily Rainfall - ${fullMonthNames[selectedMonth]} ${year}`,
-          data: dailyData,
+          data: dailyAmounts,
           borderColor: color("--accent"),
           backgroundColor: color("--accent", 0.15),
           tension: 0.3,
@@ -183,7 +204,7 @@ const RainfallPage = () => {
         },
       ],
     };
-  }, [selectedMonth, data, year]);
+  }, [selectedMonth, dailyData, year]);
 
   const chartOptions = useMemo(() => {
     const root = getComputedStyle(document.documentElement);

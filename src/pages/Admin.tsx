@@ -62,38 +62,108 @@ const Admin = () => {
     );
   }
 
-  const [rainfallData, setRainfallData] = useState<RainfallData[]>([
-    { month: "January", amount: 0 },
-    { month: "February", amount: 0 },
-    { month: "March", amount: 0 },
-    { month: "April", amount: 0 },
-    { month: "May", amount: 0 },
-    { month: "June", amount: 0 },
-    { month: "July", amount: 0 },
-    { month: "August", amount: 0 },
-    { month: "September", amount: 0 },
-    { month: "November", amount: 0 },
-    { month: "December", amount: 0 },
-  ]);
-
   const [dailyRainfallData, setDailyRainfallData] = useState<DailyRainfallData[]>([
     { date: "", amount: 0 }
   ]);
+  
+  const [existingDailyData, setExistingDailyData] = useState<DailyRainfallData[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  
+  // Generate year options from 2015 to present
+  const years = Array.from({ length: new Date().getFullYear() - 2014 }, (_, i) => 2015 + i);
 
   const [recommendations, setRecommendations] = useState<RecommendationData>({
     planting: [""],
     harvesting: [""],
   });
 
+  // Fetch existing daily rainfall data
+  useEffect(() => {
+    const fetchExistingData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('daily_rainfall')
+          .select('*')
+          .gte('date', `${selectedYear}-01-01`)
+          .lt('date', `${selectedYear + 1}-01-01`)
+          .order('date');
+        
+        if (error) throw error;
+        
+        const formattedData = data?.map(item => ({
+          date: item.date,
+          amount: item.rainfall_amount || 0
+        })) || [];
+        
+        setExistingDailyData(formattedData);
+      } catch (error: any) {
+        console.error('Error fetching existing data:', error);
+      }
+    };
+    
+    if (user) {
+      fetchExistingData();
+    }
+  }, [user, selectedYear]);
+
   // Don't render anything if not authenticated
   if (!user) {
     return null;
   }
 
-  const handleRainfallChange = (index: number, value: number) => {
-    const updated = [...rainfallData];
-    updated[index].amount = value;
-    setRainfallData(updated);
+  const handleEditExistingData = (index: number, field: 'date' | 'amount', value: string | number) => {
+    const updated = [...existingDailyData];
+    updated[index] = { ...updated[index], [field]: value };
+    setExistingDailyData(updated);
+  };
+
+  const handleDeleteExistingData = async (index: number) => {
+    const dataToDelete = existingDailyData[index];
+    try {
+      const { error } = await supabase
+        .from('daily_rainfall')
+        .delete()
+        .eq('date', dataToDelete.date);
+
+      if (error) throw error;
+
+      setExistingDailyData(existingDailyData.filter((_, i) => i !== index));
+      toast({
+        title: "Data Deleted",
+        description: "The rainfall data has been deleted successfully.",
+      });
+    } catch (error: any) {
+      console.error('Error deleting data:', error);
+      toast({
+        title: "Delete Error",
+        description: error.message || "Failed to delete data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveExistingData = async (index: number) => {
+    const dataToSave = existingDailyData[index];
+    try {
+      const { error } = await supabase
+        .from('daily_rainfall')
+        .update({ rainfall_amount: dataToSave.amount })
+        .eq('date', dataToSave.date);
+
+      if (error) throw error;
+
+      toast({
+        title: "Data Updated",
+        description: "The rainfall data has been updated successfully.",
+      });
+    } catch (error: any) {
+      console.error('Error updating data:', error);
+      toast({
+        title: "Update Error",
+        description: error.message || "Failed to update data",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDailyRainfallChange = (index: number, field: 'date' | 'amount', value: string | number) => {
@@ -133,54 +203,6 @@ const Admin = () => {
     }));
   };
 
-  const handleSaveRainfall = async () => {
-    try {
-      const currentYear = new Date().getFullYear();
-      
-      // Prepare data for database
-      const dataToSave = rainfallData
-        .filter(data => data.amount > 0)
-        .map(data => ({
-          month: getMonthNumber(data.month),
-          year: currentYear,
-          rainfall_amount: data.amount,
-        }));
-
-      if (dataToSave.length === 0) {
-        toast({
-          title: "No Data to Save",
-          description: "Please enter rainfall amounts before saving.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Delete existing data for the current year first
-      await supabase
-        .from('monthly_rainfall')
-        .delete()
-        .eq('year', currentYear);
-
-      // Insert new data
-      const { error } = await supabase
-        .from('monthly_rainfall')
-        .insert(dataToSave);
-
-      if (error) throw error;
-
-      toast({
-        title: "Rainfall Data Saved",
-        description: "The rainfall data has been saved successfully to the database.",
-      });
-    } catch (error: any) {
-      console.error('Error saving rainfall data:', error);
-      toast({
-        title: "Save Error",
-        description: error.message || "Failed to save rainfall data",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSaveRecommendations = async () => {
     try {
@@ -295,56 +317,95 @@ const Admin = () => {
           </p>
         </header>
 
-        <Tabs defaultValue="rainfall" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="rainfall">Monthly Rainfall</TabsTrigger>
+        <Tabs defaultValue="daily-rainfall" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="daily-rainfall">Daily Rainfall</TabsTrigger>
             <TabsTrigger value="recommendations">Planting Recommendations</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="rainfall" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Rainfall Data (2025)</CardTitle>
-                <CardDescription>
-                  Enter the expected rainfall amounts for each month in millimeters (mm).
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {rainfallData.map((data, index) => (
-                    <div key={data.month} className="space-y-2">
-                      <Label htmlFor={`rainfall-${index}`}>{data.month}</Label>
-                      <div className="relative">
-                        <Input
-                          id={`rainfall-${index}`}
-                          type="number"
-                          value={data.amount}
-                          onChange={(e) => handleRainfallChange(index, parseFloat(e.target.value) || 0)}
-                          placeholder="0"
-                          min="0"
-                          step="0.1"
-                        />
-                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
-                          mm
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <Button onClick={handleSaveRainfall} className="w-full md:w-auto">
-                    Save Rainfall Data
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="daily-rainfall" className="space-y-6">
+            <div className="flex gap-4 mb-6">
+              <div className="space-y-2">
+                <Label htmlFor="year-select">Select Year</Label>
+                <select
+                  id="year-select"
+                  className="rounded-md border bg-background px-3 py-2"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                >
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {existingDailyData.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Existing Daily Rainfall Data ({selectedYear})</CardTitle>
+                  <CardDescription>
+                    Edit existing rainfall data entries. Click Save to update individual entries.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {existingDailyData.map((data, index) => (
+                      <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end p-4 border rounded-lg">
+                        <div className="space-y-2">
+                          <Label htmlFor={`existing-date-${index}`}>Date</Label>
+                          <Input
+                            id={`existing-date-${index}`}
+                            type="date"
+                            value={data.date}
+                            onChange={(e) => handleEditExistingData(index, 'date', e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`existing-rainfall-${index}`}>Rainfall Amount</Label>
+                          <div className="relative">
+                            <Input
+                              id={`existing-rainfall-${index}`}
+                              type="number"
+                              value={data.amount}
+                              onChange={(e) => handleEditExistingData(index, 'amount', parseFloat(e.target.value) || 0)}
+                              placeholder="0"
+                              min="0"
+                              step="0.1"
+                            />
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+                              mm
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleSaveExistingData(index)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteExistingData(index)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card>
               <CardHeader>
-                <CardTitle>Daily Rainfall Data (2025)</CardTitle>
+                <CardTitle>Add New Daily Rainfall Data ({selectedYear})</CardTitle>
                 <CardDescription>
                   Enter rainfall amounts for specific dates in millimeters (mm).
                 </CardDescription>
@@ -359,6 +420,8 @@ const Admin = () => {
                           id={`date-${index}`}
                           type="date"
                           value={data.date}
+                          min={`${selectedYear}-01-01`}
+                          max={`${selectedYear}-12-31`}
                           onChange={(e) => handleDailyRainfallChange(index, 'date', e.target.value)}
                         />
                       </div>
@@ -401,7 +464,7 @@ const Admin = () => {
                     Add Daily Entry
                   </Button>
                   <Button onClick={handleSaveDailyRainfall}>
-                    Save Daily Rainfall Data
+                    Save New Daily Rainfall Data
                   </Button>
                 </div>
               </CardContent>
