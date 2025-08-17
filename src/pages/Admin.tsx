@@ -66,8 +66,11 @@ const Admin = () => {
     { date: "", amount: 0 }
   ]);
   
-  const [existingDailyData, setExistingDailyData] = useState<DailyRainfallData[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [editDate, setEditDate] = useState<string>("");
+  const [editAmount, setEditAmount] = useState<number>(0);
+  const [bulkData, setBulkData] = useState<string>("");
+  const [parsedBulkData, setParsedBulkData] = useState<DailyRainfallData[]>([]);
   
   // Generate year options from 2015 to present
   const years = Array.from({ length: new Date().getFullYear() - 2014 }, (_, i) => 2015 + i);
@@ -77,60 +80,104 @@ const Admin = () => {
     harvesting: [""],
   });
 
-  // Fetch existing daily rainfall data
-  useEffect(() => {
-    const fetchExistingData = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('daily_rainfall')
-          .select('*')
-          .gte('date', `${selectedYear}-01-01`)
-          .lt('date', `${selectedYear + 1}-01-01`)
-          .order('date');
-        
-        if (error) throw error;
-        
-        const formattedData = data?.map(item => ({
-          date: item.date,
-          amount: item.rainfall_amount || 0
-        })) || [];
-        
-        setExistingDailyData(formattedData);
-      } catch (error: any) {
-        console.error('Error fetching existing data:', error);
-      }
-    };
-    
-    if (user) {
-      fetchExistingData();
+  const handleLoadExistingData = async () => {
+    if (!editDate) {
+      toast({
+        title: "Select Date",
+        description: "Please select a date to load.",
+        variant: "destructive",
+      });
+      return;
     }
-  }, [user, selectedYear]);
 
-  // Don't render anything if not authenticated
-  if (!user) {
-    return null;
-  }
-
-  const handleEditExistingData = (index: number, field: 'date' | 'amount', value: string | number) => {
-    const updated = [...existingDailyData];
-    updated[index] = { ...updated[index], [field]: value };
-    setExistingDailyData(updated);
+    try {
+      const { data, error } = await supabase
+        .from('daily_rainfall')
+        .select('*')
+        .eq('date', editDate)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      if (data) {
+        setEditAmount(data.rainfall_amount || 0);
+        toast({
+          title: "Data Loaded",
+          description: `Loaded data for ${editDate}`,
+        });
+      } else {
+        setEditAmount(0);
+        toast({
+          title: "No Data Found",
+          description: `No rainfall data found for ${editDate}`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error loading data:', error);
+      toast({
+        title: "Load Error",
+        description: error.message || "Failed to load data",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDeleteExistingData = async (index: number) => {
-    const dataToDelete = existingDailyData[index];
+  const handleSaveEditedData = async () => {
+    if (!editDate) {
+      toast({
+        title: "Select Date",
+        description: "Please select a date to save.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('daily_rainfall')
+        .upsert({ 
+          date: editDate, 
+          rainfall_amount: editAmount 
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Data Saved",
+        description: `Rainfall data for ${editDate} has been saved.`,
+      });
+    } catch (error: any) {
+      console.error('Error saving data:', error);
+      toast({
+        title: "Save Error",
+        description: error.message || "Failed to save data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteEditedData = async () => {
+    if (!editDate) {
+      toast({
+        title: "Select Date",
+        description: "Please select a date to delete.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('daily_rainfall')
         .delete()
-        .eq('date', dataToDelete.date);
+        .eq('date', editDate);
 
       if (error) throw error;
 
-      setExistingDailyData(existingDailyData.filter((_, i) => i !== index));
+      setEditAmount(0);
       toast({
         title: "Data Deleted",
-        description: "The rainfall data has been deleted successfully.",
+        description: `Rainfall data for ${editDate} has been deleted.`,
       });
     } catch (error: any) {
       console.error('Error deleting data:', error);
@@ -142,29 +189,126 @@ const Admin = () => {
     }
   };
 
-  const handleSaveExistingData = async (index: number) => {
-    const dataToSave = existingDailyData[index];
-    try {
-      const { error } = await supabase
-        .from('daily_rainfall')
-        .update({ rainfall_amount: dataToSave.amount })
-        .eq('date', dataToSave.date);
-
-      if (error) throw error;
-
+  const handleParseBulkData = () => {
+    if (!bulkData.trim()) {
       toast({
-        title: "Data Updated",
-        description: "The rainfall data has been updated successfully.",
+        title: "No Data",
+        description: "Please paste your rainfall data first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const lines = bulkData.trim().split('\n');
+      const parsed: DailyRainfallData[] = [];
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      
+      lines.forEach((line, lineIndex) => {
+        if (lineIndex === 0) return; // Skip header if present
+        if (line.includes('Mo. Total') || line.includes('Average')) return; // Skip summary rows
+        
+        const cells = line.split(/\s+/);
+        if (cells.length < 2) return;
+        
+        const day = parseInt(cells[0]);
+        if (isNaN(day) || day < 1 || day > 31) return;
+        
+        for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+          const valueIndex = monthIndex + 1;
+          if (valueIndex < cells.length) {
+            let value = cells[valueIndex];
+            if (value === 'T') value = '0.01'; // Convert trace to small amount
+            if (value === '0.00') value = '0';
+            
+            const amount = parseFloat(value);
+            if (!isNaN(amount) && amount >= 0) {
+              const month = monthIndex + 1;
+              const dateStr = `${selectedYear}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+              
+              // Check if this date is valid
+              const testDate = new Date(dateStr);
+              if (testDate.getFullYear() === selectedYear && 
+                  testDate.getMonth() === monthIndex && 
+                  testDate.getDate() === day) {
+                parsed.push({
+                  date: dateStr,
+                  amount: amount
+                });
+              }
+            }
+          }
+        }
+      });
+      
+      setParsedBulkData(parsed);
+      toast({
+        title: "Data Parsed",
+        description: `Successfully parsed ${parsed.length} rainfall entries.`,
       });
     } catch (error: any) {
-      console.error('Error updating data:', error);
+      console.error('Error parsing bulk data:', error);
       toast({
-        title: "Update Error",
-        description: error.message || "Failed to update data",
+        title: "Parse Error",
+        description: "Failed to parse the rainfall data. Please check the format.",
         variant: "destructive",
       });
     }
   };
+
+  const handleSaveBulkData = async () => {
+    if (parsedBulkData.length === 0) {
+      toast({
+        title: "No Data",
+        description: "Please parse the data first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Delete existing data for these dates first
+      const dates = parsedBulkData.map(d => d.date);
+      await supabase
+        .from('daily_rainfall')
+        .delete()
+        .in('date', dates);
+
+      // Insert new data
+      const dataToSave = parsedBulkData.map(data => ({
+        date: data.date,
+        rainfall_amount: data.amount,
+      }));
+
+      const { error } = await supabase
+        .from('daily_rainfall')
+        .insert(dataToSave);
+
+      if (error) throw error;
+
+      setBulkData("");
+      setParsedBulkData([]);
+      toast({
+        title: "Bulk Data Saved",
+        description: `Successfully saved ${dataToSave.length} rainfall entries.`,
+      });
+    } catch (error: any) {
+      console.error('Error saving bulk data:', error);
+      toast({
+        title: "Save Error",
+        description: error.message || "Failed to save bulk data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Don't render anything if not authenticated
+  if (!user) {
+    return null;
+  }
+
 
   const handleDailyRainfallChange = (index: number, field: 'date' | 'amount', value: string | number) => {
     const updated = [...dailyRainfallData];
@@ -343,69 +487,110 @@ const Admin = () => {
               </div>
             </div>
 
-            {existingDailyData.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Existing Daily Rainfall Data ({selectedYear})</CardTitle>
-                  <CardDescription>
-                    Edit existing rainfall data entries. Click Save to update individual entries.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {existingDailyData.map((data, index) => (
-                      <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end p-4 border rounded-lg">
-                        <div className="space-y-2">
-                          <Label htmlFor={`existing-date-${index}`}>Date</Label>
-                          <Input
-                            id={`existing-date-${index}`}
-                            type="date"
-                            value={data.date}
-                            onChange={(e) => handleEditExistingData(index, 'date', e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor={`existing-rainfall-${index}`}>Rainfall Amount</Label>
-                          <div className="relative">
-                            <Input
-                              id={`existing-rainfall-${index}`}
-                              type="number"
-                              value={data.amount}
-                              onChange={(e) => handleEditExistingData(index, 'amount', parseFloat(e.target.value) || 0)}
-                              placeholder="0"
-                              min="0"
-                              step="0.1"
-                            />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
-                              mm
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleSaveExistingData(index)}
-                          >
-                            Save
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDeleteExistingData(index)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Edit Existing Daily Rainfall Data ({selectedYear})</CardTitle>
+                <CardDescription>
+                  Select a date to edit its rainfall data.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-date">Select Date to Edit</Label>
+                      <Input
+                        id="edit-date"
+                        type="date"
+                        value={editDate}
+                        min={`${selectedYear}-01-01`}
+                        max={`${selectedYear}-12-31`}
+                        onChange={(e) => setEditDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-rainfall">Rainfall Amount</Label>
+                      <div className="relative">
+                        <Input
+                          id="edit-rainfall"
+                          type="number"
+                          value={editAmount}
+                          onChange={(e) => setEditAmount(parseFloat(e.target.value) || 0)}
+                          placeholder="0"
+                          min="0"
+                          step="0.1"
+                        />
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+                          mm
+                        </span>
                       </div>
-                    ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleLoadExistingData}>
+                        Load
+                      </Button>
+                      <Button onClick={handleSaveEditedData}>
+                        Save
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteEditedData}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Add New Daily Rainfall Data ({selectedYear})</CardTitle>
+                <CardTitle>Bulk Import Rainfall Data ({selectedYear})</CardTitle>
+                <CardDescription>
+                  Paste tabular rainfall data. Use "T" for trace amounts. Format: rows are days, columns are months.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bulk-data">Paste Rainfall Data Table</Label>
+                    <textarea
+                      id="bulk-data"
+                      className="w-full h-32 p-3 border rounded-md resize-none font-mono text-sm"
+                      placeholder="Paste your rainfall data table here..."
+                      value={bulkData}
+                      onChange={(e) => setBulkData(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={handleParseBulkData}>
+                    Parse & Preview Data
+                  </Button>
+                  {parsedBulkData.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Parsed {parsedBulkData.length} entries. Preview first 10:
+                      </p>
+                      <div className="max-h-32 overflow-y-auto border rounded p-2 text-sm">
+                        {parsedBulkData.slice(0, 10).map((entry, index) => (
+                          <div key={index}>
+                            {entry.date}: {entry.amount}mm
+                          </div>
+                        ))}
+                        {parsedBulkData.length > 10 && <div>... and {parsedBulkData.length - 10} more</div>}
+                      </div>
+                      <Button onClick={handleSaveBulkData} className="mt-2">
+                        Save All {parsedBulkData.length} Entries
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Add Individual Daily Rainfall Data ({selectedYear})</CardTitle>
                 <CardDescription>
                   Enter rainfall amounts for specific dates in millimeters (mm).
                 </CardDescription>
