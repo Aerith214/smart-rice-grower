@@ -258,6 +258,194 @@ const Admin = () => {
     }
   };
 
+  const handleLoad2015Data = async () => {
+    const rainfall2015Data = [
+      // January
+      { date: "2015-01-01", amount: 0.8 }, { date: "2015-01-02", amount: 2.1 }, { date: "2015-01-03", amount: 0.3 },
+      { date: "2015-01-04", amount: 0.0 }, { date: "2015-01-05", amount: 0.0 }, { date: "2015-01-06", amount: 0.0 },
+      { date: "2015-01-07", amount: 0.0 }, { date: "2015-01-08", amount: 0.0 }, { date: "2015-01-09", amount: 4.8 },
+      { date: "2015-01-10", amount: 0.0 }, { date: "2015-01-11", amount: 1.0 }, { date: "2015-01-12", amount: 0.8 },
+      { date: "2015-01-13", amount: 1.8 }, { date: "2015-01-14", amount: 0.0 }, { date: "2015-01-15", amount: 0.0 },
+      { date: "2015-01-16", amount: 1.8 }, { date: "2015-01-17", amount: 0.0 }, { date: "2015-01-18", amount: 0.0 },
+      { date: "2015-01-19", amount: 23.2 }, { date: "2015-01-20", amount: 0.0 }, { date: "2015-01-21", amount: 1.2 },
+      { date: "2015-01-22", amount: 0.0 }, { date: "2015-01-23", amount: 0.4 }, { date: "2015-01-24", amount: 0.0 },
+      { date: "2015-01-25", amount: 0.0 }, { date: "2015-01-26", amount: 0.0 }, { date: "2015-01-27", amount: 0.0 },
+      { date: "2015-01-28", amount: 0.0 }, { date: "2015-01-29", amount: 0.0 }, { date: "2015-01-30", amount: 0.0 },
+      { date: "2015-01-31", amount: 0.0 },
+      
+      // February
+      { date: "2015-02-01", amount: 2.3 }, { date: "2015-02-02", amount: 0.0 }, { date: "2015-02-03", amount: 1.8 },
+      { date: "2015-02-04", amount: 0.0 }, { date: "2015-02-05", amount: 0.0 }, { date: "2015-02-06", amount: 0.0 },
+      { date: "2015-02-07", amount: 0.0 }, { date: "2015-02-08", amount: 2.0 }, { date: "2015-02-09", amount: 0.0 },
+      { date: "2015-02-10", amount: 0.6 }, { date: "2015-02-11", amount: 0.0 }, { date: "2015-02-12", amount: 0.0 },
+      { date: "2015-02-13", amount: 1.0 }, { date: "2015-02-14", amount: 0.6 }, { date: "2015-02-15", amount: 6.5 },
+      { date: "2015-02-16", amount: 9.8 }, { date: "2015-02-17", amount: 0.0 }, { date: "2015-02-18", amount: 8.2 },
+      { date: "2015-02-19", amount: 3.6 }, { date: "2015-02-20", amount: 7.4 }, { date: "2015-02-21", amount: 0.0 },
+      { date: "2015-02-22", amount: 0.0 }, { date: "2015-02-23", amount: 0.0 }, { date: "2015-02-24", amount: 0.0 },
+      { date: "2015-02-25", amount: 0.0 }, { date: "2015-02-26", amount: 0.0 }, { date: "2015-02-27", amount: 0.0 },
+      { date: "2015-02-28", amount: 0.0 },
+      
+      // March
+      { date: "2015-03-01", amount: 0.0 }, { date: "2015-03-02", amount: 0.0 }, { date: "2015-03-03", amount: 0.0 },
+      { date: "2015-03-04", amount: 0.0 }, { date: "2015-03-05", amount: 0.0 }, { date: "2015-03-06", amount: 0.0 },
+      { date: "2015-03-07", amount: 0.0 }, { date: "2015-03-08", amount: 0.0 }, { date: "2015-03-09", amount: 0.0 },
+      { date: "2015-03-10", amount: 0.0 }, { date: "2015-03-11", amount: 0.2 }, { date: "2015-03-12", amount: 0.8 },
+      { date: "2015-03-13", amount: 0.4 }, { date: "2015-03-14", amount: 0.8 }, { date: "2015-03-15", amount: 0.0 },
+      { date: "2015-03-16", amount: 0.0 }, { date: "2015-03-17", amount: 0.0 }, { date: "2015-03-18", amount: 0.0 },
+      { date: "2015-03-19", amount: 0.0 }, { date: "2015-03-20", amount: 0.0 }, { date: "2015-03-21", amount: 0.0 },
+      { date: "2015-03-22", amount: 0.0 }, { date: "2015-03-23", amount: 7.4 }, { date: "2015-03-24", amount: 0.0 },
+      { date: "2015-03-25", amount: 0.9 }, { date: "2015-03-26", amount: 18.5 }, { date: "2015-03-27", amount: 11.9 },
+      { date: "2015-03-28", amount: 0.2 }, { date: "2015-03-29", amount: 0.8 }, { date: "2015-03-30", amount: 0.0 },
+      { date: "2015-03-31", amount: 0.0 },
+      
+      // April
+      { date: "2015-04-01", amount: 0.0 }, { date: "2015-04-02", amount: 0.0 }, { date: "2015-04-03", amount: 0.0 },
+      { date: "2015-04-04", amount: 0.0 }, { date: "2015-04-05", amount: 1.0 }, { date: "2015-04-06", amount: 27.0 },
+      { date: "2015-04-07", amount: 4.6 }, { date: "2015-04-08", amount: 0.0 }, { date: "2015-04-09", amount: 0.0 },
+      { date: "2015-04-10", amount: 0.0 }, { date: "2015-04-11", amount: 0.0 }, { date: "2015-04-12", amount: 0.0 },
+      { date: "2015-04-13", amount: 0.0 }, { date: "2015-04-14", amount: 0.01 }, { date: "2015-04-15", amount: 0.0 },
+      { date: "2015-04-16", amount: 0.0 }, { date: "2015-04-17", amount: 39.6 }, { date: "2015-04-18", amount: 1.8 },
+      { date: "2015-04-19", amount: 0.0 }, { date: "2015-04-20", amount: 0.4 }, { date: "2015-04-21", amount: 1.0 },
+      { date: "2015-04-22", amount: 2.6 }, { date: "2015-04-23", amount: 0.8 }, { date: "2015-04-24", amount: 0.0 },
+      { date: "2015-04-25", amount: 0.8 }, { date: "2015-04-26", amount: 0.0 }, { date: "2015-04-27", amount: 0.0 },
+      { date: "2015-04-28", amount: 0.0 }, { date: "2015-04-29", amount: 0.8 }, { date: "2015-04-30", amount: 0.3 },
+      
+      // May
+      { date: "2015-05-01", amount: 1.0 }, { date: "2015-05-02", amount: 0.0 }, { date: "2015-05-03", amount: 0.0 },
+      { date: "2015-05-04", amount: 0.0 }, { date: "2015-05-05", amount: 27.4 }, { date: "2015-05-06", amount: 1.2 },
+      { date: "2015-05-07", amount: 12.3 }, { date: "2015-05-08", amount: 0.0 }, { date: "2015-05-09", amount: 0.0 },
+      { date: "2015-05-10", amount: 0.01 }, { date: "2015-05-11", amount: 0.0 }, { date: "2015-05-12", amount: 0.0 },
+      { date: "2015-05-13", amount: 24.8 }, { date: "2015-05-14", amount: 0.0 }, { date: "2015-05-15", amount: 0.0 },
+      { date: "2015-05-16", amount: 0.0 }, { date: "2015-05-17", amount: 0.0 }, { date: "2015-05-18", amount: 0.0 },
+      { date: "2015-05-19", amount: 0.0 }, { date: "2015-05-20", amount: 0.0 }, { date: "2015-05-21", amount: 0.0 },
+      { date: "2015-05-22", amount: 0.0 }, { date: "2015-05-23", amount: 0.0 }, { date: "2015-05-24", amount: 0.0 },
+      { date: "2015-05-25", amount: 3.8 }, { date: "2015-05-26", amount: 21.9 }, { date: "2015-05-27", amount: 4.8 },
+      { date: "2015-05-28", amount: 0.0 }, { date: "2015-05-29", amount: 1.4 }, { date: "2015-05-30", amount: 6.8 },
+      { date: "2015-05-31", amount: 6.6 },
+      
+      // June
+      { date: "2015-06-01", amount: 3.2 }, { date: "2015-06-02", amount: 21.5 }, { date: "2015-06-03", amount: 0.0 },
+      { date: "2015-06-04", amount: 0.0 }, { date: "2015-06-05", amount: 0.0 }, { date: "2015-06-06", amount: 0.0 },
+      { date: "2015-06-07", amount: 5.2 }, { date: "2015-06-08", amount: 0.0 }, { date: "2015-06-09", amount: 0.0 },
+      { date: "2015-06-10", amount: 2.2 }, { date: "2015-06-11", amount: 0.0 }, { date: "2015-06-12", amount: 0.0 },
+      { date: "2015-06-13", amount: 0.0 }, { date: "2015-06-14", amount: 0.0 }, { date: "2015-06-15", amount: 0.0 },
+      { date: "2015-06-16", amount: 0.0 }, { date: "2015-06-17", amount: 0.0 }, { date: "2015-06-18", amount: 34.4 },
+      { date: "2015-06-19", amount: 30.4 }, { date: "2015-06-20", amount: 0.0 }, { date: "2015-06-21", amount: 1.4 },
+      { date: "2015-06-22", amount: 0.0 }, { date: "2015-06-23", amount: 0.0 }, { date: "2015-06-24", amount: 0.0 },
+      { date: "2015-06-25", amount: 0.4 }, { date: "2015-06-26", amount: 1.4 }, { date: "2015-06-27", amount: 0.0 },
+      { date: "2015-06-28", amount: 6.4 }, { date: "2015-06-29", amount: 0.5 }, { date: "2015-06-30", amount: 0.1 },
+      
+      // July
+      { date: "2015-07-01", amount: 9.9 }, { date: "2015-07-02", amount: 30.8 }, { date: "2015-07-03", amount: 0.0 },
+      { date: "2015-07-04", amount: 1.2 }, { date: "2015-07-05", amount: 60.2 }, { date: "2015-07-06", amount: 14.6 },
+      { date: "2015-07-07", amount: 0.0 }, { date: "2015-07-08", amount: 0.0 }, { date: "2015-07-09", amount: 0.1 },
+      { date: "2015-07-10", amount: 13.2 }, { date: "2015-07-11", amount: 2.4 }, { date: "2015-07-12", amount: 0.2 },
+      { date: "2015-07-13", amount: 0.2 }, { date: "2015-07-14", amount: 4.8 }, { date: "2015-07-15", amount: 3.8 },
+      { date: "2015-07-16", amount: 0.6 }, { date: "2015-07-17", amount: 8.8 }, { date: "2015-07-18", amount: 5.4 },
+      { date: "2015-07-19", amount: 2.2 }, { date: "2015-07-20", amount: 0.0 }, { date: "2015-07-21", amount: 33.8 },
+      { date: "2015-07-22", amount: 0.0 }, { date: "2015-07-23", amount: 34.0 }, { date: "2015-07-24", amount: 2.5 },
+      { date: "2015-07-25", amount: 0.0 }, { date: "2015-07-26", amount: 6.9 }, { date: "2015-07-27", amount: 16.8 },
+      { date: "2015-07-28", amount: 20.2 }, { date: "2015-07-29", amount: 1.3 }, { date: "2015-07-30", amount: 7.2 },
+      { date: "2015-07-31", amount: 0.0 },
+      
+      // August
+      { date: "2015-08-01", amount: 0.0 }, { date: "2015-08-02", amount: 0.0 }, { date: "2015-08-03", amount: 0.0 },
+      { date: "2015-08-04", amount: 0.0 }, { date: "2015-08-05", amount: 0.0 }, { date: "2015-08-06", amount: 12.8 },
+      { date: "2015-08-07", amount: 0.0 }, { date: "2015-08-08", amount: 0.0 }, { date: "2015-08-09", amount: 0.0 },
+      { date: "2015-08-10", amount: 0.0 }, { date: "2015-08-11", amount: 8.0 }, { date: "2015-08-12", amount: 8.5 },
+      { date: "2015-08-13", amount: 43.6 }, { date: "2015-08-14", amount: 75.6 }, { date: "2015-08-15", amount: 6.5 },
+      { date: "2015-08-16", amount: 0.2 }, { date: "2015-08-17", amount: 2.9 }, { date: "2015-08-18", amount: 1.5 },
+      { date: "2015-08-19", amount: 17.9 }, { date: "2015-08-20", amount: 27.2 }, { date: "2015-08-21", amount: 7.7 },
+      { date: "2015-08-22", amount: 2.4 }, { date: "2015-08-23", amount: 1.5 }, { date: "2015-08-24", amount: 0.0 },
+      { date: "2015-08-25", amount: 0.0 }, { date: "2015-08-26", amount: 0.2 }, { date: "2015-08-27", amount: 0.0 },
+      { date: "2015-08-28", amount: 57.0 }, { date: "2015-08-29", amount: 7.2 }, { date: "2015-08-30", amount: 7.9 },
+      { date: "2015-08-31", amount: 6.6 },
+      
+      // September
+      { date: "2015-09-01", amount: 3.2 }, { date: "2015-09-02", amount: 10.2 }, { date: "2015-09-03", amount: 1.8 },
+      { date: "2015-09-04", amount: 5.0 }, { date: "2015-09-05", amount: 1.0 }, { date: "2015-09-06", amount: 4.6 },
+      { date: "2015-09-07", amount: 14.4 }, { date: "2015-09-08", amount: 5.0 }, { date: "2015-09-09", amount: 42.0 },
+      { date: "2015-09-10", amount: 39.5 }, { date: "2015-09-11", amount: 16.2 }, { date: "2015-09-12", amount: 3.3 },
+      { date: "2015-09-13", amount: 2.4 }, { date: "2015-09-14", amount: 1.6 }, { date: "2015-09-15", amount: 6.2 },
+      { date: "2015-09-16", amount: 0.0 }, { date: "2015-09-17", amount: 0.0 }, { date: "2015-09-18", amount: 0.0 },
+      { date: "2015-09-19", amount: 0.0 }, { date: "2015-09-20", amount: 0.0 }, { date: "2015-09-21", amount: 0.0 },
+      { date: "2015-09-22", amount: 0.4 }, { date: "2015-09-23", amount: 0.0 }, { date: "2015-09-24", amount: 0.0 },
+      { date: "2015-09-25", amount: 3.2 }, { date: "2015-09-26", amount: 65.4 }, { date: "2015-09-27", amount: 45.8 },
+      { date: "2015-09-28", amount: 2.0 }, { date: "2015-09-29", amount: 0.0 }, { date: "2015-09-30", amount: 0.0 },
+      
+      // October
+      { date: "2015-10-01", amount: 0.2 }, { date: "2015-10-02", amount: 51.6 }, { date: "2015-10-03", amount: 0.0 },
+      { date: "2015-10-04", amount: 1.4 }, { date: "2015-10-05", amount: 2.0 }, { date: "2015-10-06", amount: 0.2 },
+      { date: "2015-10-07", amount: 0.0 }, { date: "2015-10-08", amount: 0.2 }, { date: "2015-10-09", amount: 1.8 },
+      { date: "2015-10-10", amount: 2.4 }, { date: "2015-10-11", amount: 38.8 }, { date: "2015-10-12", amount: 18.9 },
+      { date: "2015-10-13", amount: 0.9 }, { date: "2015-10-14", amount: 28.2 }, { date: "2015-10-15", amount: 11.0 },
+      { date: "2015-10-16", amount: 0.0 }, { date: "2015-10-17", amount: 13.4 }, { date: "2015-10-18", amount: 69.8 },
+      { date: "2015-10-19", amount: 63.1 }, { date: "2015-10-20", amount: 0.5 }, { date: "2015-10-21", amount: 0.0 },
+      { date: "2015-10-22", amount: 0.0 }, { date: "2015-10-23", amount: 0.0 }, { date: "2015-10-24", amount: 0.0 },
+      { date: "2015-10-25", amount: 0.0 }, { date: "2015-10-26", amount: 0.0 }, { date: "2015-10-27", amount: 0.0 },
+      { date: "2015-10-28", amount: 0.0 }, { date: "2015-10-29", amount: 0.0 }, { date: "2015-10-30", amount: 0.2 },
+      { date: "2015-10-31", amount: 2.0 },
+      
+      // November
+      { date: "2015-11-01", amount: 0.5 }, { date: "2015-11-02", amount: 13.6 }, { date: "2015-11-03", amount: 1.5 },
+      { date: "2015-11-04", amount: 0.0 }, { date: "2015-11-05", amount: 0.01 }, { date: "2015-11-06", amount: 9.5 },
+      { date: "2015-11-07", amount: 3.0 }, { date: "2015-11-08", amount: 0.01 }, { date: "2015-11-09", amount: 0.01 },
+      { date: "2015-11-10", amount: 0.0 }, { date: "2015-11-11", amount: 0.0 }, { date: "2015-11-12", amount: 0.0 },
+      { date: "2015-11-13", amount: 0.0 }, { date: "2015-11-14", amount: 0.0 }, { date: "2015-11-15", amount: 0.0 },
+      { date: "2015-11-16", amount: 0.0 }, { date: "2015-11-17", amount: 0.0 }, { date: "2015-11-18", amount: 0.0 },
+      { date: "2015-11-19", amount: 0.0 }, { date: "2015-11-20", amount: 0.2 }, { date: "2015-11-21", amount: 0.0 },
+      { date: "2015-11-22", amount: 0.0 }, { date: "2015-11-23", amount: 0.0 }, { date: "2015-11-24", amount: 0.0 },
+      { date: "2015-11-25", amount: 0.0 }, { date: "2015-11-26", amount: 0.2 }, { date: "2015-11-27", amount: 1.0 },
+      { date: "2015-11-28", amount: 4.1 }, { date: "2015-11-29", amount: 0.0 }, { date: "2015-11-30", amount: 0.0 },
+      
+      // December
+      { date: "2015-12-01", amount: 0.0 }, { date: "2015-12-02", amount: 0.0 }, { date: "2015-12-03", amount: 0.01 },
+      { date: "2015-12-04", amount: 0.4 }, { date: "2015-12-05", amount: 0.4 }, { date: "2015-12-06", amount: 0.01 },
+      { date: "2015-12-07", amount: 2.4 }, { date: "2015-12-08", amount: 2.9 }, { date: "2015-12-09", amount: 0.0 },
+      { date: "2015-12-10", amount: 0.0 }, { date: "2015-12-11", amount: 0.0 }, { date: "2015-12-12", amount: 0.0 },
+      { date: "2015-12-13", amount: 0.0 }, { date: "2015-12-14", amount: 2.5 }, { date: "2015-12-15", amount: 113.0 },
+      { date: "2015-12-16", amount: 148.0 }, { date: "2015-12-17", amount: 13.6 }, { date: "2015-12-18", amount: 2.6 },
+      { date: "2015-12-19", amount: 13.1 }, { date: "2015-12-20", amount: 42.4 }, { date: "2015-12-21", amount: 21.2 },
+      { date: "2015-12-22", amount: 0.01 }, { date: "2015-12-23", amount: 0.0 }, { date: "2015-12-24", amount: 0.0 },
+      { date: "2015-12-25", amount: 0.0 }, { date: "2015-12-26", amount: 0.0 }, { date: "2015-12-27", amount: 0.0 },
+      { date: "2015-12-28", amount: 0.4 }, { date: "2015-12-29", amount: 5.3 }, { date: "2015-12-30", amount: 4.9 },
+      { date: "2015-12-31", amount: 0.01 }
+    ];
+
+    try {
+      // Delete existing 2015 data first
+      await supabase
+        .from('daily_rainfall')
+        .delete()
+        .gte('date', '2015-01-01')
+        .lte('date', '2015-12-31');
+
+      // Insert the 2015 data
+      const dataToSave = rainfall2015Data.map(data => ({
+        date: data.date,
+        rainfall_amount: data.amount,
+      }));
+
+      const { error } = await supabase
+        .from('daily_rainfall')
+        .insert(dataToSave);
+
+      if (error) throw error;
+
+      toast({
+        title: "2015 Data Loaded",
+        description: `Successfully loaded ${rainfall2015Data.length} official 2015 rainfall entries.`,
+      });
+    } catch (error: any) {
+      console.error('Error loading 2015 data:', error);
+      toast({
+        title: "Load Error",
+        description: error.message || "Failed to load 2015 data",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSaveBulkData = async () => {
     if (parsedBulkData.length === 0) {
       toast({
@@ -540,6 +728,32 @@ const Admin = () => {
                       </Button>
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>2015 Official Rainfall Data</CardTitle>
+                <CardDescription>
+                  Click to load the official 2015 rainfall data from Bayombong Nueva Vizcaya
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button 
+                    onClick={handleLoad2015Data} 
+                    className="w-full"
+                    disabled={selectedYear !== 2015}
+                  >
+                    {selectedYear === 2015 ? 'Load 2015 Official Data' : 'Select Year 2015 to Load Official Data'}
+                  </Button>
+                  
+                  {selectedYear === 2015 && (
+                    <div className="text-sm text-muted-foreground">
+                      This will load the complete 2015 rainfall data from the official Bayombong Nueva Vizcaya records.
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
