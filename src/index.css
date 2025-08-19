@@ -8,55 +8,62 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 220 30% 6%;
-    --foreground: 210 40% 98%;
+    --background: 70 50% 95%;
+    --foreground: 120 10% 15%;
 
-    --card: 220 25% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 80 60% 98%;
+    --card-foreground: 120 10% 15%;
 
-    --popover: 220 25% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 80 60% 98%;
+    --popover-foreground: 120 10% 15%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 220 30% 6%;
+    --primary: 75 65% 45%;
+    --primary-foreground: 80 60% 98%;
     
     /* Additional design tokens */
-    --primary-glow: 217 91% 70%;
+    --primary-glow: 75 65% 60%;
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
 
-    --secondary: 220 20% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 70 40% 88%;
+    --secondary-foreground: 120 10% 15%;
 
-    --muted: 220 15% 12%;
-    --muted-foreground: 217 10% 65%;
+    --muted: 70 30% 90%;
+    --muted-foreground: 120 8% 40%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 220 30% 6%;
+    --accent: 45 95% 60%;
+    --accent-foreground: 120 10% 15%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 80 60% 98%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 217 91% 60%;
+    --border: 70 30% 85%;
+    --input: 70 30% 85%;
+    --ring: 75 65% 45%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 220 25% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 220 30% 6%;
-    --sidebar-accent: 220 20% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 80 60% 98%;
+    --sidebar-foreground: 120 10% 15%;
+    --sidebar-primary: 75 65% 45%;
+    --sidebar-primary-foreground: 80 60% 98%;
+    --sidebar-accent: 70 40% 88%;
+    --sidebar-accent-foreground: 120 10% 15%;
+    --sidebar-border: 70 30% 85%;
+    --sidebar-ring: 75 65% 45%;
+    
+    /* Chart colors - blue theme for light mode */
+    --chart-1: 210 100% 50%;
+    --chart-2: 220 100% 40%;
+    --chart-3: 200 100% 45%;
+    --chart-4: 230 100% 55%;
+    --chart-5: 240 100% 60%;
     
     /* Custom colors for recommendations */
-    --planting: 142 76% 36%;
-    --planting-foreground: 220 30% 6%;
-    --harvesting: 47 96% 53%;
-    --harvesting-foreground: 220 30% 6%;
+    --planting: 120 60% 40%;
+    --planting-foreground: 80 60% 98%;
+    --harvesting: 45 95% 50%;
+    --harvesting-foreground: 120 10% 15%;
   }
 
   .dark {
@@ -95,6 +102,13 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 220 15% 15%;
     --sidebar-ring: 217 91% 65%;
+    
+    /* Chart colors - keep blue theme for dark mode too */
+    --chart-1: 217 91% 65%;
+    --chart-2: 200 100% 60%;
+    --chart-3: 230 100% 70%;
+    --chart-4: 180 100% 60%;
+    --chart-5: 260 100% 70%;
     
     /* Custom colors for recommendations */
     --planting: 142 76% 40%;

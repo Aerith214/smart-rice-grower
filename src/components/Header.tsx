@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -46,6 +47,7 @@ const Header = () => {
           >
             Recommendation
           </NavLink>
+          <ThemeToggle />
           {user ? (
             <>
               <NavLink

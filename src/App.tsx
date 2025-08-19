@@ -22,7 +22,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Header />
+          <div className="dark">
+            <Header />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/map" element={<MapPage />} />
@@ -33,6 +34,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
