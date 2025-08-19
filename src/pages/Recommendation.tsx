@@ -1,11 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useSEO } from "@/hooks/useSEO";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { Calendar, Sprout, Scissors } from "lucide-react";
 
 interface Recommendations {
   planting: string[]; // ISO dates
   harvesting: string[]; // ISO dates
+}
+
+interface DatabaseRecommendation {
+  id: string;
+  planting_date: string;
+  harvesting_date: string;
+  created_at: string;
 }
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -34,12 +44,26 @@ const RecommendationPage = () => {
   const today = new Date();
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [recs, setRecs] = useState<Recommendations | null>(null);
+  const [dbRecommendations, setDbRecommendations] = useState<DatabaseRecommendation[]>([]);
 
   useEffect(() => {
     (async () => {
+      // Load JSON recommendations
       const res = await fetch("/data/recommendations.json");
       const json = (await res.json()) as Recommendations;
       setRecs(json);
+
+      // Load database recommendations
+      const { data, error } = await supabase
+        .from('planting_recommendations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error loading recommendations:', error);
+      } else {
+        setDbRecommendations(data || []);
+      }
     })();
   }, []);
 
@@ -134,6 +158,87 @@ const RecommendationPage = () => {
                 <span className="px-2 py-1 rounded bg-harvesting text-harvesting-foreground text-xs font-medium">🌾 Harvesting</span>
               </span>
             </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Database Recommendations Section */}
+      <section className="container mx-auto py-10">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              All Planting & Harvesting Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {dbRecommendations.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {/* Planting Recommendations */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-planting">
+                      <Sprout className="h-4 w-4" />
+                      Planting Dates
+                    </h3>
+                    <div className="space-y-2">
+                      {dbRecommendations
+                        .filter(rec => rec.planting_date)
+                        .sort((a, b) => new Date(a.planting_date).getTime() - new Date(b.planting_date).getTime())
+                        .map((rec) => (
+                          <div key={`plant-${rec.id}`} className="flex items-center justify-between p-3 bg-planting/10 rounded-lg border border-planting/20">
+                            <span className="font-medium">
+                              {new Date(rec.planting_date).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </span>
+                            <Badge variant="secondary" className="bg-planting text-planting-foreground">
+                              <Sprout className="h-3 w-3 mr-1" />
+                              Plant
+                            </Badge>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* Harvesting Recommendations */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-harvesting">
+                      <Scissors className="h-4 w-4" />
+                      Harvesting Dates
+                    </h3>
+                    <div className="space-y-2">
+                      {dbRecommendations
+                        .filter(rec => rec.harvesting_date)
+                        .sort((a, b) => new Date(a.harvesting_date).getTime() - new Date(b.harvesting_date).getTime())
+                        .map((rec) => (
+                          <div key={`harvest-${rec.id}`} className="flex items-center justify-between p-3 bg-harvesting/10 rounded-lg border border-harvesting/20">
+                            <span className="font-medium">
+                              {new Date(rec.harvesting_date).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </span>
+                            <Badge variant="secondary" className="bg-harvesting text-harvesting-foreground">
+                              <Scissors className="h-3 w-3 mr-1" />
+                              Harvest
+                            </Badge>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No recommendations found in the database.</p>
+                <p className="text-sm">Ask your administrator to add planting and harvesting recommendations.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </section>

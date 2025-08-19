@@ -18,8 +18,8 @@ const Index = () => {
   return (
     <main>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-background to-accent/5 py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <section className="relative bg-background py-24">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5"></div>
         <div className="container mx-auto px-4 text-center relative">
           <div className="flex justify-center mb-6">
             <Badge variant="secondary" className="px-4 py-2 text-sm font-medium">
@@ -51,7 +51,7 @@ const Index = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-24 bg-gradient-to-b from-background to-accent/5">
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
