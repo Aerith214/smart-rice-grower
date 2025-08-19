@@ -64,6 +64,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				planting: {
+					DEFAULT: 'hsl(var(--planting))',
+					foreground: 'hsl(var(--planting-foreground))'
+				},
+				harvesting: {
+					DEFAULT: 'hsl(var(--harvesting))',
+					foreground: 'hsl(var(--harvesting-foreground))'
 				}
 			},
 			borderRadius: {

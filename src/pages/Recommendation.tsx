@@ -91,16 +91,33 @@ const RecommendationPage = () => {
                   <div
                     key={i}
                     className={cn(
-                      "min-h-20 rounded-md border bg-card p-2 text-center",
-                      !d && "opacity-50"
+                      "min-h-20 rounded-md border bg-card p-2 text-center transition-colors",
+                      !d && "opacity-50",
+                      isPlant && isHarvest && "bg-gradient-to-br from-planting/20 to-harvesting/20 border-planting",
+                      isPlant && !isHarvest && "bg-planting/20 border-planting",
+                      !isPlant && isHarvest && "bg-harvesting/20 border-harvesting"
                     )}
                   >
                     {d && (
                       <div className="flex flex-col items-center gap-1">
                         <div className="text-sm font-medium">{d}</div>
                         <div className="flex gap-1 text-xs">
-                          {isPlant && <span title="Planting">🌱</span>}
-                          {isHarvest && <span title="Harvesting">🌾</span>}
+                          {isPlant && (
+                            <span 
+                              title="Planting" 
+                              className="px-1 py-0.5 rounded text-planting-foreground bg-planting text-[10px] font-medium"
+                            >
+                              🌱
+                            </span>
+                          )}
+                          {isHarvest && (
+                            <span 
+                              title="Harvesting" 
+                              className="px-1 py-0.5 rounded text-harvesting-foreground bg-harvesting text-[10px] font-medium"
+                            >
+                              🌾
+                            </span>
+                          )}
                         </div>
                       </div>
                     )}
@@ -108,10 +125,14 @@ const RecommendationPage = () => {
                 );
               })}
             </div>
-            <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
-              <span>Legend:</span>
-              <span className="flex items-center gap-1"><span>🌱</span> Planting</span>
-              <span className="flex items-center gap-1"><span>🌾</span> Harvesting</span>
+            <div className="mt-4 flex items-center gap-4 text-sm">
+              <span className="text-muted-foreground">Legend:</span>
+              <span className="flex items-center gap-2">
+                <span className="px-2 py-1 rounded bg-planting text-planting-foreground text-xs font-medium">🌱 Planting</span>
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="px-2 py-1 rounded bg-harvesting text-harvesting-foreground text-xs font-medium">🌾 Harvesting</span>
+              </span>
             </div>
           </CardContent>
         </Card>
