@@ -10,9 +10,12 @@ const Header = () => {
   return (
     <header className="bg-primary text-primary-foreground">
       <nav className="container mx-auto flex items-center justify-between py-4">
-        <a href="/" className="text-lg font-semibold tracking-tight">
-          SmartRice
-        </a>
+        <div className="flex items-center gap-4">
+          <a href="/" className="text-lg font-semibold tracking-tight">
+            SmartRice
+          </a>
+          <ThemeToggle />
+        </div>
         <div className="flex items-center gap-6">
           <NavLink
             to="/map"
@@ -47,7 +50,6 @@ const Header = () => {
           >
             Recommendation
           </NavLink>
-          <ThemeToggle />
           {user ? (
             <>
               <NavLink
