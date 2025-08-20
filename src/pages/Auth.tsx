@@ -188,9 +188,13 @@ const Auth = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
+            minLength={8}
+            placeholder="Minimum 8 characters"
             required
           />
+          <p className="text-xs text-muted-foreground">
+            Use at least 8 characters with a mix of letters, numbers, and symbols
+          </p>
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Creating Account..." : "Create Account"}

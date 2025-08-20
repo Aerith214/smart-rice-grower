@@ -81,38 +81,6 @@ export type Database = {
           id?: string
           planting_date?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "planting_recommendations_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      users: {
-        Row: {
-          created_at: string | null
-          id: string
-          password: string
-          role: string | null
-          username: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          password: string
-          role?: string | null
-          username: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          password?: string
-          role?: string | null
-          username?: string
-        }
         Relationships: []
       }
     }
