@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -14,7 +13,6 @@ const Header = () => {
           <a href="/" className="text-lg font-semibold tracking-tight">
             SmartRice
           </a>
-          <ThemeToggle />
         </div>
         <div className="flex items-center gap-6">
           <NavLink
