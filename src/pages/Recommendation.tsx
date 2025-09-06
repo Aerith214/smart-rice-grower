@@ -86,8 +86,24 @@ const RecommendationPage = () => {
 
   const matrix = useMemo(() => getDaysMatrix(year, month), [year, month]);
 
-  const plantingSet = useMemo(() => new Set((recs?.planting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month)), [recs, year, month]);
-  const harvestingSet = useMemo(() => new Set((recs?.harvesting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month)), [recs, year, month]);
+  // Combine static and database recommendations
+  const plantingSet = useMemo(() => {
+    const staticPlanting = (recs?.planting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
+    const dbPlanting = dbRecommendations
+      .filter(rec => rec.planting_date)
+      .map(rec => rec.planting_date)
+      .filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
+    return new Set([...staticPlanting, ...dbPlanting]);
+  }, [recs, dbRecommendations, year, month]);
+
+  const harvestingSet = useMemo(() => {
+    const staticHarvesting = (recs?.harvesting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
+    const dbHarvesting = dbRecommendations
+      .filter(rec => rec.harvesting_date)
+      .map(rec => rec.harvesting_date)
+      .filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
+    return new Set([...staticHarvesting, ...dbHarvesting]);
+  }, [recs, dbRecommendations, year, month]);
 
   // Handle year change
   const handleYearChange = (newYear: string) => {
