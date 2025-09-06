@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSEO } from "@/hooks/useSEO";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Sprout, Scissors } from "lucide-react";
+import { Calendar, Sprout, Scissors, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Recommendations {
   planting: string[]; // ISO dates
@@ -42,9 +44,20 @@ const RecommendationPage = () => {
   });
 
   const today = new Date();
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [recs, setRecs] = useState<Recommendations | null>(null);
   const [dbRecommendations, setDbRecommendations] = useState<DatabaseRecommendation[]>([]);
+
+  // Generate year options (current year ± 5 years)
+  const yearOptions = useMemo(() => {
+    const currentYear = today.getFullYear();
+    const years = [];
+    for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+      years.push(i);
+    }
+    return years;
+  }, [today]);
 
   useEffect(() => {
     (async () => {
@@ -67,14 +80,38 @@ const RecommendationPage = () => {
     })();
   }, []);
 
-  const year = cursor.getFullYear();
+  const year = selectedYear;
   const month = cursor.getMonth();
-  const monthLabel = cursor.toLocaleString(undefined, { month: "long", year: "numeric" });
+  const monthLabel = cursor.toLocaleString(undefined, { month: "long" });
 
   const matrix = useMemo(() => getDaysMatrix(year, month), [year, month]);
 
   const plantingSet = useMemo(() => new Set((recs?.planting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month)), [recs, year, month]);
   const harvestingSet = useMemo(() => new Set((recs?.harvesting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month)), [recs, year, month]);
+
+  // Handle year change
+  const handleYearChange = (newYear: string) => {
+    const yearNum = parseInt(newYear);
+    setSelectedYear(yearNum);
+    setCursor(new Date(yearNum, month, 1));
+  };
+
+  // Handle month navigation
+  const goToPreviousMonth = () => {
+    const newDate = new Date(year, month - 1, 1);
+    setCursor(newDate);
+    if (newDate.getFullYear() !== year) {
+      setSelectedYear(newDate.getFullYear());
+    }
+  };
+
+  const goToNextMonth = () => {
+    const newDate = new Date(year, month + 1, 1);
+    setCursor(newDate);
+    if (newDate.getFullYear() !== year) {
+      setSelectedYear(newDate.getFullYear());
+    }
+  };
 
   return (
     <main className="container mx-auto py-10">
@@ -82,25 +119,44 @@ const RecommendationPage = () => {
         <Card>
           <CardHeader className="flex items-start justify-between gap-4 sm:flex-row sm:items-center">
             <CardTitle>Recommendation Calendar</CardTitle>
-            <div className="flex gap-2">
-              <button
-                className="rounded-md border bg-background px-3 py-2"
-                onClick={() => setCursor(new Date(year, month - 1, 1))}
-                aria-label="Previous month"
-              >
-                ← Prev
-              </button>
-              <button
-                className="rounded-md border bg-background px-3 py-2"
-                onClick={() => setCursor(new Date(year, month + 1, 1))}
-                aria-label="Next month"
-              >
-                Next →
-              </button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Year:</span>
+                <Select value={selectedYear.toString()} onValueChange={handleYearChange}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map((yearOption) => (
+                      <SelectItem key={yearOption} value={yearOption.toString()}>
+                        {yearOption}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={goToPreviousMonth}
+                  aria-label="Previous month"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={goToNextMonth}
+                  aria-label="Next month"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="mb-4 text-muted-foreground">{monthLabel}</p>
+            <p className="mb-4 text-muted-foreground font-medium">{monthLabel} {year}</p>
             <div className="grid grid-cols-7 gap-2">
               {dayNames.map((d) => (
                 <div key={d} className="text-center text-sm text-muted-foreground">
@@ -115,32 +171,42 @@ const RecommendationPage = () => {
                   <div
                     key={i}
                     className={cn(
-                      "min-h-20 rounded-md border bg-card p-2 text-center transition-colors",
-                      !d && "opacity-50",
-                      isPlant && isHarvest && "bg-gradient-to-br from-planting/20 to-harvesting/20 border-planting",
-                      isPlant && !isHarvest && "bg-planting/20 border-planting",
-                      !isPlant && isHarvest && "bg-harvesting/20 border-harvesting"
+                      "min-h-20 rounded-lg border-2 bg-card p-2 text-center transition-all hover:shadow-md",
+                      !d && "opacity-30 border-border/50",
+                      isPlant && isHarvest && "bg-gradient-to-br from-planting/30 to-harvesting/30 border-planting shadow-lg",
+                      isPlant && !isHarvest && "bg-planting/25 border-planting shadow-md",
+                      !isPlant && isHarvest && "bg-harvesting/25 border-harvesting shadow-md",
+                      !isPlant && !isHarvest && d && "border-border hover:border-primary/50"
                     )}
                   >
                     {d && (
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="text-sm font-medium">{d}</div>
-                        <div className="flex gap-1 text-xs">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className={cn(
+                          "text-sm font-semibold",
+                          (isPlant || isHarvest) && "text-foreground"
+                        )}>{d}</div>
+                        <div className="flex flex-col gap-1">
                           {isPlant && (
-                            <span 
-                              title="Planting" 
-                              className="px-1 py-0.5 rounded text-planting-foreground bg-planting text-[10px] font-medium"
-                            >
-                              🌱
-                            </span>
+                            <div className="flex items-center justify-center">
+                              <span 
+                                title="Planting Day" 
+                                className="flex items-center gap-1 px-2 py-1 rounded-full text-planting-foreground bg-planting text-[10px] font-bold shadow-sm"
+                              >
+                                <Sprout className="h-2.5 w-2.5" />
+                                Plant
+                              </span>
+                            </div>
                           )}
                           {isHarvest && (
-                            <span 
-                              title="Harvesting" 
-                              className="px-1 py-0.5 rounded text-harvesting-foreground bg-harvesting text-[10px] font-medium"
-                            >
-                              🌾
-                            </span>
+                            <div className="flex items-center justify-center">
+                              <span 
+                                title="Harvesting Day" 
+                                className="flex items-center gap-1 px-2 py-1 rounded-full text-harvesting-foreground bg-harvesting text-[10px] font-bold shadow-sm"
+                              >
+                                <Scissors className="h-2.5 w-2.5" />
+                                Harvest
+                              </span>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -149,14 +215,16 @@ const RecommendationPage = () => {
                 );
               })}
             </div>
-            <div className="mt-4 flex items-center gap-4 text-sm">
-              <span className="text-muted-foreground">Legend:</span>
-              <span className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded bg-planting text-planting-foreground text-xs font-medium">🌱 Planting</span>
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded bg-harvesting text-harvesting-foreground text-xs font-medium">🌾 Harvesting</span>
-              </span>
+            <div className="mt-6 flex items-center justify-center gap-6 text-sm">
+              <span className="text-muted-foreground font-medium">Legend:</span>
+              <div className="flex items-center gap-2">
+                <Sprout className="h-4 w-4 text-planting" />
+                <span className="px-3 py-1.5 rounded-full bg-planting text-planting-foreground text-xs font-bold shadow-sm">Planting Days</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Scissors className="h-4 w-4 text-harvesting" />
+                <span className="px-3 py-1.5 rounded-full bg-harvesting text-harvesting-foreground text-xs font-bold shadow-sm">Harvesting Days</span>
+              </div>
             </div>
           </CardContent>
         </Card>
