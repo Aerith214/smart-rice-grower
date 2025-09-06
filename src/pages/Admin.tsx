@@ -25,6 +25,13 @@ interface RecommendationData {
   harvesting: string[];
 }
 
+interface DatabaseRecommendation {
+  id: string;
+  planting_date: string | null;
+  harvesting_date: string | null;
+  created_at: string;
+}
+
 const Admin = () => {
   const { toast } = useToast();
   const { user, loading } = useAuth();
@@ -79,6 +86,28 @@ const Admin = () => {
     planting: [""],
     harvesting: [""],
   });
+  
+  const [dbRecommendations, setDbRecommendations] = useState<DatabaseRecommendation[]>([]);
+  const [editingRecommendation, setEditingRecommendation] = useState<DatabaseRecommendation | null>(null);
+
+  // Load existing recommendations from database
+  useEffect(() => {
+    const loadRecommendations = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('planting_recommendations')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        setDbRecommendations(data || []);
+      } catch (error) {
+        console.error('Error loading recommendations:', error);
+      }
+    };
+
+    loadRecommendations();
+  }, []);
 
   const handleLoadExistingData = async () => {
     if (!editDate) {
@@ -552,23 +581,26 @@ const Admin = () => {
         return;
       }
 
-      // Clear existing recommendations
-      await supabase
-        .from('planting_recommendations')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
-
-      // Prepare data for database
-      const dataToSave = [
-        ...filteredRecommendations.planting.map(date => ({
-          planting_date: date,
+      // Prepare data for database - create separate records for planting and harvesting
+      const dataToSave = [];
+      
+      // Add planting dates
+      for (const plantingDate of filteredRecommendations.planting) {
+        dataToSave.push({
+          planting_date: plantingDate,
           harvesting_date: null,
-        })),
-        ...filteredRecommendations.harvesting.map(date => ({
+          created_by: user?.id || null,
+        });
+      }
+      
+      // Add harvesting dates
+      for (const harvestingDate of filteredRecommendations.harvesting) {
+        dataToSave.push({
           planting_date: null,
-          harvesting_date: date,
-        })),
-      ];
+          harvesting_date: harvestingDate,
+          created_by: user?.id || null,
+        });
+      }
 
       // Insert new recommendations
       const { error } = await supabase
@@ -576,6 +608,16 @@ const Admin = () => {
         .insert(dataToSave);
 
       if (error) throw error;
+
+      // Reload recommendations to show updated list
+      const { data: updatedData } = await supabase
+        .from('planting_recommendations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      setDbRecommendations(updatedData || []);
+
+      // Reset form
+      setRecommendations({ planting: [""], harvesting: [""] });
 
       toast({
         title: "Recommendations Saved",
@@ -586,6 +628,71 @@ const Admin = () => {
       toast({
         title: "Save Error",
         description: error.message || "Failed to save recommendations",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditRecommendation = (recommendation: DatabaseRecommendation) => {
+    setEditingRecommendation(recommendation);
+  };
+
+  const handleUpdateRecommendation = async (id: string, planting_date: string | null, harvesting_date: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('planting_recommendations')
+        .update({ planting_date, harvesting_date })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Reload recommendations
+      const { data: updatedData } = await supabase
+        .from('planting_recommendations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      setDbRecommendations(updatedData || []);
+      setEditingRecommendation(null);
+
+      toast({
+        title: "Recommendation Updated",
+        description: "The recommendation has been updated successfully.",
+      });
+    } catch (error: any) {
+      console.error('Error updating recommendation:', error);
+      toast({
+        title: "Update Error",
+        description: error.message || "Failed to update recommendation",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteRecommendation = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('planting_recommendations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Reload recommendations
+      const { data: updatedData } = await supabase
+        .from('planting_recommendations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      setDbRecommendations(updatedData || []);
+
+      toast({
+        title: "Recommendation Deleted",
+        description: "The recommendation has been deleted successfully.",
+      });
+    } catch (error: any) {
+      console.error('Error deleting recommendation:', error);
+      toast({
+        title: "Delete Error",
+        description: error.message || "Failed to delete recommendation",
         variant: "destructive",
       });
     }
@@ -871,12 +978,110 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="recommendations" className="space-y-6">
+            {/* Existing Database Recommendations */}
+            {dbRecommendations.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Existing Recommendations</CardTitle>
+                  <CardDescription>
+                    Manage existing planting and harvesting recommendations.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {dbRecommendations.map((rec) => (
+                      <div key={rec.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          {editingRecommendation?.id === rec.id ? (
+                            <div className="flex gap-2">
+                              <Input
+                                type="date"
+                                value={editingRecommendation.planting_date || ''}
+                                onChange={(e) => setEditingRecommendation({
+                                  ...editingRecommendation,
+                                  planting_date: e.target.value || null
+                                })}
+                                placeholder="Planting date"
+                              />
+                              <Input
+                                type="date"
+                                value={editingRecommendation.harvesting_date || ''}
+                                onChange={(e) => setEditingRecommendation({
+                                  ...editingRecommendation,
+                                  harvesting_date: e.target.value || null
+                                })}
+                                placeholder="Harvesting date"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex gap-4">
+                              {rec.planting_date && (
+                                <span className="text-green-600">
+                                  🌱 Plant: {new Date(rec.planting_date).toLocaleDateString()}
+                                </span>
+                              )}
+                              {rec.harvesting_date && (
+                                <span className="text-orange-600">
+                                  🌾 Harvest: {new Date(rec.harvesting_date).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          {editingRecommendation?.id === rec.id ? (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => handleUpdateRecommendation(
+                                  rec.id,
+                                  editingRecommendation.planting_date,
+                                  editingRecommendation.harvesting_date
+                                )}
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingRecommendation(null)}
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditRecommendation(rec)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleDeleteRecommendation(rec.id)}
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Add New Recommendations */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Planting Dates</CardTitle>
+                  <CardTitle>Add Planting Dates</CardTitle>
                   <CardDescription>
-                    Add recommended planting dates for rice farming.
+                    Add new recommended planting dates for rice farming.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -911,9 +1116,9 @@ const Admin = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Harvesting Dates</CardTitle>
+                  <CardTitle>Add Harvesting Dates</CardTitle>
                   <CardDescription>
-                    Add recommended harvesting dates for rice farming.
+                    Add new recommended harvesting dates for rice farming.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -949,7 +1154,7 @@ const Admin = () => {
 
             <div className="flex justify-center">
               <Button onClick={handleSaveRecommendations} className="w-full md:w-auto">
-                Save Recommendations
+                Save New Recommendations
               </Button>
             </div>
           </TabsContent>
