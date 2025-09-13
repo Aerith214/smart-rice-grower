@@ -37,9 +37,11 @@ const SmartCroppingSystem = () => {
   // State
   const [currentDate] = useState(new Date());
   const [rainfallForecast, setRainfallForecast] = useState<number>(0);
+  const [forecastDate, setForecastDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [dailyRainfall, setDailyRainfall] = useState<DailyRainfallData[]>([]);
   const [manualRainfall, setManualRainfall] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Cropping phases definition
   const croppingPhases: Record<string, CroppingPhase> = {
@@ -251,7 +253,7 @@ const SmartCroppingSystem = () => {
 
   const recommendation = getRecommendation();
 
-  // Load recent rainfall data
+  // Load recent rainfall data and check admin status
   useEffect(() => {
     const loadRainfallData = async () => {
       setLoading(true);
@@ -270,6 +272,10 @@ const SmartCroppingSystem = () => {
         if (data && data.length > 0) {
           setRainfallForecast(data[0].rainfall_amount || 0);
         }
+        
+        // Check if user is admin (simplified - in production use proper role checking)
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsAdmin(!!user); // For now, any authenticated user is admin
       } catch (error) {
         console.error('Error loading rainfall data:', error);
       } finally {
@@ -341,6 +347,10 @@ const SmartCroppingSystem = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
+                <p className="text-sm text-muted-foreground">Date</p>
+                <p className="font-medium">{new Date(forecastDate).toLocaleDateString()}</p>
+              </div>
+              <div>
                 <p className="text-sm text-muted-foreground">Amount</p>
                 <p className="font-semibold text-2xl">{rainfallForecast.toFixed(1)} mm</p>
               </div>
@@ -350,21 +360,31 @@ const SmartCroppingSystem = () => {
                   {rainfallCategory.category} Rain
                 </Badge>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Update Forecast</p>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="mm"
-                    value={manualRainfall}
-                    onChange={(e) => setManualRainfall(e.target.value)}
-                    className="text-sm"
-                  />
-                  <Button size="sm" onClick={handleManualRainfallUpdate}>
-                    Update
-                  </Button>
+              {isAdmin && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Update Forecast (Admin Only)</p>
+                  <div className="space-y-2">
+                    <Input
+                      type="date"
+                      value={forecastDate}
+                      onChange={(e) => setForecastDate(e.target.value)}
+                      className="text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="mm"
+                        value={manualRainfall}
+                        onChange={(e) => setManualRainfall(e.target.value)}
+                        className="text-sm"
+                      />
+                      <Button size="sm" onClick={handleManualRainfallUpdate}>
+                        Update
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 

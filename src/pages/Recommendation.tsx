@@ -86,24 +86,22 @@ const RecommendationPage = () => {
 
   const matrix = useMemo(() => getDaysMatrix(year, month), [year, month]);
 
-  // Combine static and database recommendations
+  // Only use database recommendations
   const plantingSet = useMemo(() => {
-    const staticPlanting = (recs?.planting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
     const dbPlanting = dbRecommendations
       .filter(rec => rec.planting_date)
       .map(rec => rec.planting_date)
       .filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
-    return new Set([...staticPlanting, ...dbPlanting]);
-  }, [recs, dbRecommendations, year, month]);
+    return new Set(dbPlanting);
+  }, [dbRecommendations, year, month]);
 
   const harvestingSet = useMemo(() => {
-    const staticHarvesting = (recs?.harvesting ?? []).filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
     const dbHarvesting = dbRecommendations
       .filter(rec => rec.harvesting_date)
       .map(rec => rec.harvesting_date)
       .filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
-    return new Set([...staticHarvesting, ...dbHarvesting]);
-  }, [recs, dbRecommendations, year, month]);
+    return new Set(dbHarvesting);
+  }, [dbRecommendations, year, month]);
 
   // Handle year change
   const handleYearChange = (newYear: string) => {
@@ -181,8 +179,8 @@ const RecommendationPage = () => {
               ))}
               {matrix.map((d, i) => {
                 const dateStr = d ? new Date(year, month, d).toISOString().slice(0, 10) : "";
-                const isPlant = d && recs && plantingSet.has(dateStr);
-                const isHarvest = d && recs && harvestingSet.has(dateStr);
+                const isPlant = d && plantingSet.has(dateStr);
+                const isHarvest = d && harvestingSet.has(dateStr);
                 return (
                   <div
                     key={i}
