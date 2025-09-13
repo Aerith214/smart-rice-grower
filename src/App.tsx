@@ -10,6 +10,7 @@ import MapPage from "@/pages/Map";
 import RainfallPage from "@/pages/Rainfall";
 import RecommendationPage from "@/pages/Recommendation";
 import RiceCroppingCalendar from "@/pages/RiceCroppingCalendar";
+import SmartCroppingSystem from "@/pages/SmartCroppingSystem";
 import AdminPage from "@/pages/Admin";
 import AuthPage from "@/pages/Auth";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/rainfall" element={<RainfallPage />} />
             <Route path="/recommendation" element={<RecommendationPage />} />
             <Route path="/cropping-calendar" element={<RiceCroppingCalendar />} />
+            <Route path="/smart-system" element={<SmartCroppingSystem />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/auth" element={<AuthPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

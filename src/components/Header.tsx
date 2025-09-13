@@ -59,6 +59,17 @@ const Header = () => {
           >
             Cropping Calendar
           </NavLink>
+          <NavLink
+            to="/smart-system"
+            className={({ isActive }) =>
+              cn(
+                "transition-opacity",
+                isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+              )
+            }
+          >
+            Smart System
+          </NavLink>
           {user ? (
             <>
               <NavLink
