@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import MapPage from "@/pages/Map";
 import RainfallPage from "@/pages/Rainfall";
 import RecommendationPage from "@/pages/Recommendation";
+import RiceCroppingCalendar from "@/pages/RiceCroppingCalendar";
 import AdminPage from "@/pages/Admin";
 import AuthPage from "@/pages/Auth";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/map" element={<MapPage />} />
             <Route path="/rainfall" element={<RainfallPage />} />
             <Route path="/recommendation" element={<RecommendationPage />} />
+            <Route path="/cropping-calendar" element={<RiceCroppingCalendar />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/auth" element={<AuthPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

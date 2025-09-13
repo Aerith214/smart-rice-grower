@@ -48,6 +48,17 @@ const Header = () => {
           >
             Recommendation
           </NavLink>
+          <NavLink
+            to="/cropping-calendar"
+            className={({ isActive }) =>
+              cn(
+                "transition-opacity",
+                isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+              )
+            }
+          >
+            Cropping Calendar
+          </NavLink>
           {user ? (
             <>
               <NavLink
