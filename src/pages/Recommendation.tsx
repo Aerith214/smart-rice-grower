@@ -22,6 +22,39 @@ interface DatabaseRecommendation {
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+// Date helpers that avoid timezone shifts
+const toYMD = (y: number, m0: number, d: number) =>
+  `${y}-${String(m0 + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+const takeYMD = (s?: string) => (s ?? "").slice(0, 10);
+
+const parseYMD = (s?: string) => {
+  const [y, m, d] = takeYMD(s).split("-").map(Number);
+  return { y, m, d };
+};
+
+const utcTimeOfYMD = (s?: string) => {
+  const { y, m, d } = parseYMD(s);
+  if (!y || !m || !d) return NaN;
+  return Date.UTC(y, m - 1, d);
+};
+
+const isSameMonthYear = (s: string, year: number, month0: number) => {
+  const { y, m } = parseYMD(s);
+  return y === year && m - 1 === month0;
+};
+
+const formatYMDHuman = (s?: string) => {
+  const { y, m, d } = parseYMD(s);
+  if (!y || !m || !d) return s ?? "";
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+};
+
 function getDaysMatrix(year: number, month: number) {
   // month 0-11
   const firstDay = new Date(year, month, 1);
@@ -89,17 +122,17 @@ const RecommendationPage = () => {
   // Only use database recommendations
   const plantingSet = useMemo(() => {
     const dbPlanting = dbRecommendations
-      .filter(rec => rec.planting_date)
-      .map(rec => rec.planting_date)
-      .filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
+      .filter((rec) => rec.planting_date)
+      .map((rec) => takeYMD(rec.planting_date))
+      .filter((d) => isSameMonthYear(d, year, month));
     return new Set(dbPlanting);
   }, [dbRecommendations, year, month]);
 
   const harvestingSet = useMemo(() => {
     const dbHarvesting = dbRecommendations
-      .filter(rec => rec.harvesting_date)
-      .map(rec => rec.harvesting_date)
-      .filter(d => new Date(d).getFullYear() === year && new Date(d).getMonth() === month);
+      .filter((rec) => rec.harvesting_date)
+      .map((rec) => takeYMD(rec.harvesting_date))
+      .filter((d) => isSameMonthYear(d, year, month));
     return new Set(dbHarvesting);
   }, [dbRecommendations, year, month]);
 
@@ -178,7 +211,7 @@ const RecommendationPage = () => {
                 </div>
               ))}
               {matrix.map((d, i) => {
-                const dateStr = d ? new Date(year, month, d).toISOString().slice(0, 10) : "";
+                const dateStr = d ? toYMD(year, month, d) : "";
                 const isPlant = d && plantingSet.has(dateStr);
                 const isHarvest = d && harvestingSet.has(dateStr);
                 return (
@@ -266,15 +299,11 @@ const RecommendationPage = () => {
                     <div className="space-y-2">
                       {dbRecommendations
                         .filter(rec => rec.planting_date)
-                        .sort((a, b) => new Date(a.planting_date).getTime() - new Date(b.planting_date).getTime())
+                        .sort((a, b) => utcTimeOfYMD(a.planting_date) - utcTimeOfYMD(b.planting_date))
                         .map((rec) => (
                           <div key={`plant-${rec.id}`} className="flex items-center justify-between p-3 bg-planting/10 rounded-lg border border-planting/20">
                             <span className="font-medium">
-                              {new Date(rec.planting_date).toLocaleDateString(undefined, {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })}
+                              {formatYMDHuman(rec.planting_date)}
                             </span>
                             <Badge variant="secondary" className="bg-planting text-planting-foreground">
                               <Sprout className="h-3 w-3 mr-1" />
@@ -294,15 +323,11 @@ const RecommendationPage = () => {
                     <div className="space-y-2">
                       {dbRecommendations
                         .filter(rec => rec.harvesting_date)
-                        .sort((a, b) => new Date(a.harvesting_date).getTime() - new Date(b.harvesting_date).getTime())
+                        .sort((a, b) => utcTimeOfYMD(a.harvesting_date) - utcTimeOfYMD(b.harvesting_date))
                         .map((rec) => (
                           <div key={`harvest-${rec.id}`} className="flex items-center justify-between p-3 bg-harvesting/10 rounded-lg border border-harvesting/20">
                             <span className="font-medium">
-                              {new Date(rec.harvesting_date).toLocaleDateString(undefined, {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })}
+                              {formatYMDHuman(rec.harvesting_date)}
                             </span>
                             <Badge variant="secondary" className="bg-harvesting text-harvesting-foreground">
                               <Scissors className="h-3 w-3 mr-1" />
