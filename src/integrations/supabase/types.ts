@@ -35,6 +35,83 @@ export type Database = {
         }
         Relationships: []
       }
+      harvest_analysis: {
+        Row: {
+          accuracy_notes: string | null
+          created_at: string
+          harvest_log_id: string
+          id: string
+          rainfall_during_period: number | null
+          rainfall_relevance_score: number | null
+          timing_difference_days: number | null
+          weather_impact_factor: string | null
+        }
+        Insert: {
+          accuracy_notes?: string | null
+          created_at?: string
+          harvest_log_id: string
+          id?: string
+          rainfall_during_period?: number | null
+          rainfall_relevance_score?: number | null
+          timing_difference_days?: number | null
+          weather_impact_factor?: string | null
+        }
+        Update: {
+          accuracy_notes?: string | null
+          created_at?: string
+          harvest_log_id?: string
+          id?: string
+          rainfall_during_period?: number | null
+          rainfall_relevance_score?: number | null
+          timing_difference_days?: number | null
+          weather_impact_factor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "harvest_analysis_harvest_log_id_fkey"
+            columns: ["harvest_log_id"]
+            isOneToOne: false
+            referencedRelation: "harvest_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      harvest_logs: {
+        Row: {
+          actual_harvest_date: string
+          actual_harvest_time: string | null
+          created_at: string
+          crop_type: string
+          id: string
+          notes: string | null
+          recommended_harvest_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_harvest_date: string
+          actual_harvest_time?: string | null
+          created_at?: string
+          crop_type: string
+          id?: string
+          notes?: string | null
+          recommended_harvest_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_harvest_date?: string
+          actual_harvest_time?: string | null
+          created_at?: string
+          crop_type?: string
+          id?: string
+          notes?: string | null
+          recommended_harvest_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       monthly_rainfall: {
         Row: {
           created_at: string | null
@@ -80,6 +157,33 @@ export type Database = {
           harvesting_date?: string | null
           id?: string
           planting_date?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
         }
         Relationships: []
       }

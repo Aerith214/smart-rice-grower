@@ -13,6 +13,9 @@ import RiceCroppingCalendar from "@/pages/RiceCroppingCalendar";
 import SmartCroppingSystem from "@/pages/SmartCroppingSystem";
 import AdminPage from "@/pages/Admin";
 import AuthPage from "@/pages/Auth";
+import HarvestLogger from "@/pages/HarvestLogger";
+import HarvestComparison from "@/pages/HarvestComparison";
+import Profile from "@/pages/Profile";
 import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
@@ -33,6 +36,9 @@ const App = () => (
             <Route path="/recommendation" element={<RecommendationPage />} />
             <Route path="/cropping-calendar" element={<RiceCroppingCalendar />} />
             <Route path="/smart-system" element={<SmartCroppingSystem />} />
+            <Route path="/harvest-logger" element={<HarvestLogger />} />
+            <Route path="/harvest-comparison" element={<HarvestComparison />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/auth" element={<AuthPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

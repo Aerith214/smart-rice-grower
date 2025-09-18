@@ -59,18 +59,51 @@ const Header = () => {
           >
             Cropping Calendar
           </NavLink>
-          <NavLink
-            to="/smart-system"
-            className={({ isActive }) =>
-              cn(
-                "transition-opacity",
-                isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
-              )
-            }
-          >
-            Smart System
-          </NavLink>
-          {user ? (
+           <NavLink
+             to="/smart-system"
+             className={({ isActive }) =>
+               cn(
+                 "transition-opacity",
+                 isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+               )
+             }
+           >
+             Smart System
+           </NavLink>
+           <NavLink
+             to="/harvest-logger"
+             className={({ isActive }) =>
+               cn(
+                 "transition-opacity",
+                 isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+               )
+             }
+           >
+             Harvest Logger
+           </NavLink>
+           <NavLink
+             to="/harvest-comparison"
+             className={({ isActive }) =>
+               cn(
+                 "transition-opacity",
+                 isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+               )
+             }
+           >
+             Analysis
+           </NavLink>
+           <NavLink
+             to="/profile"
+             className={({ isActive }) =>
+               cn(
+                 "transition-opacity",
+                 isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+               )
+             }
+           >
+             Profile
+           </NavLink>
+           {user ? (
             <>
               <NavLink
                 to="/admin"
