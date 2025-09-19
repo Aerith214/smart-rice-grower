@@ -162,7 +162,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          contact_number: string | null
           created_at: string
+          farm_location: string | null
+          farm_name: string | null
           full_name: string | null
           id: string
           updated_at: string
@@ -170,7 +173,10 @@ export type Database = {
           username: string
         }
         Insert: {
+          contact_number?: string | null
           created_at?: string
+          farm_location?: string | null
+          farm_name?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
@@ -178,7 +184,10 @@ export type Database = {
           username: string
         }
         Update: {
+          contact_number?: string | null
           created_at?: string
+          farm_location?: string | null
+          farm_name?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
