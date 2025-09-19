@@ -12,7 +12,8 @@ import RecommendationPage from "@/pages/Recommendation";
 import RiceCroppingCalendar from "@/pages/RiceCroppingCalendar";
 import SmartCroppingSystem from "@/pages/SmartCroppingSystem";
 import AdminPage from "@/pages/Admin";
-import AuthPage from "@/pages/Auth";
+import AdminAuth from "@/pages/AdminAuth";
+import UserAuth from "@/pages/UserAuth";
 import HarvestLogger from "@/pages/HarvestLogger";
 import HarvestComparison from "@/pages/HarvestComparison";
 import Profile from "@/pages/Profile";
@@ -40,7 +41,8 @@ const App = () => (
             <Route path="/harvest-comparison" element={<HarvestComparison />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/user-auth" element={<UserAuth />} />
+            <Route path="/admin-auth" element={<AdminAuth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

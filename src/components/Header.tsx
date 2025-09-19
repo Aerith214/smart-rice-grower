@@ -125,19 +125,32 @@ const Header = () => {
                 Logout
               </Button>
             </>
-          ) : (
-            <NavLink
-              to="/auth"
-              className={({ isActive }) =>
-                cn(
-                  "transition-opacity",
-                  isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
-                )
-              }
-            >
-              Login
-            </NavLink>
-          )}
+           ) : (
+             <>
+               <NavLink
+                 to="/user-auth"
+                 className={({ isActive }) =>
+                   cn(
+                     "transition-opacity",
+                     isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+                   )
+                 }
+               >
+                 User Login
+               </NavLink>
+               <NavLink
+                 to="/admin-auth"
+                 className={({ isActive }) =>
+                   cn(
+                     "transition-opacity",
+                     isActive ? "opacity-100 underline" : "opacity-80 hover:opacity-100"
+                   )
+                 }
+               >
+                 Admin
+               </NavLink>
+             </>
+           )}
         </div>
       </nav>
     </header>

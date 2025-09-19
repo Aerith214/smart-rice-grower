@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Session } from '@supabase/supabase-js';
 import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 
-const Auth = () => {
+const UserAuth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const Auth = () => {
   useSEO({
     title: "Login & Register - SmartRice",
     description: "Create your SmartRice account to track and optimize your farming activities.",
-    canonicalPath: "/auth",
+    canonicalPath: "/user-auth",
   });
 
   useEffect(() => {
@@ -106,7 +106,8 @@ const Auth = () => {
             full_name: formData.fullName,
             contact_number: formData.contactNumber || '',
             farm_name: formData.farmName || '',
-            farm_location: formData.farmLocation || ''
+            farm_location: formData.farmLocation || '',
+            role: 'user'
           }
         }
       });
@@ -466,7 +467,7 @@ const Auth = () => {
           className="w-full" 
           disabled={loading || (attemptedSubmit && (!fullName.trim() || !emailValid || !passwordValidation.isValid))}
         >
-          {loading ? "Creating Account..." : "Create Account"}
+          {loading ? "Creating Account..." : "Create Farmer Account"}
         </Button>
       </form>
     );
@@ -476,24 +477,24 @@ const Auth = () => {
     <main className="container mx-auto py-8 px-4">
       <div className="max-w-md mx-auto">
         <header className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to SmartRice</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Join SmartRice</h1>
           <p className="text-muted-foreground">
-            Join our platform to track your farming activities and optimize your harvests with data-driven insights.
+            Create your farmer account to track your farming activities and optimize your harvests with data-driven insights.
           </p>
         </header>
 
         <Card>
           <CardHeader>
-            <CardTitle>Get Started</CardTitle>
+            <CardTitle>Farmer Registration</CardTitle>
             <CardDescription>
-              Sign in to your account or create a new one to begin tracking your farming data.
+              Sign in to your farmer account or create a new one to begin tracking your farming data.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signup">Register</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin" className="mt-6">
@@ -506,9 +507,21 @@ const Auth = () => {
             </Tabs>
           </CardContent>
         </Card>
+        
+        <div className="mt-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            Need admin access?{" "}
+            <a 
+              href="/admin-auth" 
+              className="text-primary hover:underline"
+            >
+              Admin Login
+            </a>
+          </p>
+        </div>
       </div>
     </main>
   );
 };
 
-export default Auth;
+export default UserAuth;
