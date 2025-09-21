@@ -66,6 +66,12 @@ All colors MUST be HSL.
     --planting-foreground: 0 0% 100%;
     --harvesting: 60 80% 40%;
     --harvesting-foreground: 0 0% 100%;
+    
+    /* User and Admin color schemes */
+    --user-accent: 210 100% 50%;
+    --user-accent-foreground: 0 0% 100%;
+    --admin-accent: 0 85% 55%;
+    --admin-accent-foreground: 0 0% 100%;
   }
 }
 

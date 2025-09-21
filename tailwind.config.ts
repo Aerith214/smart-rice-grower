@@ -81,6 +81,14 @@ export default {
 				harvesting: {
 					DEFAULT: 'hsl(var(--harvesting))',
 					foreground: 'hsl(var(--harvesting-foreground))'
+				},
+				'user-accent': {
+					DEFAULT: 'hsl(var(--user-accent))',
+					foreground: 'hsl(var(--user-accent-foreground))'
+				},
+				'admin-accent': {
+					DEFAULT: 'hsl(var(--admin-accent))',
+					foreground: 'hsl(var(--admin-accent-foreground))'
 				}
 			},
 			borderRadius: {
