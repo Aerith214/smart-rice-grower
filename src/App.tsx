@@ -18,6 +18,8 @@ import UserAuth from "@/pages/UserAuth";
 import HarvestLogger from "@/pages/HarvestLogger";
 import HarvestComparison from "@/pages/HarvestComparison";
 import Profile from "@/pages/Profile";
+import TyphoonTracker from "@/pages/TyphoonTracker";
+import UserManagement from "@/pages/UserManagement";
 import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/harvest-logger" element={<HarvestLogger />} />
             <Route path="/harvest-comparison" element={<HarvestComparison />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/typhoon-tracker" element={<TyphoonTracker />} />
+            <Route path="/user-management" element={<UserManagement />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/user-auth" element={<UserAuth />} />
             <Route path="/admin-auth" element={<AdminAuth />} />

@@ -240,35 +240,70 @@ const HarvestLogger = () => {
                   No harvest logs recorded yet.
                 </p>
               ) : (
-                harvestLogs.map((log) => (
-                  <div key={log.id} className="border rounded-lg p-4 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold text-foreground">{log.crop_type}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Harvested: {new Date(log.actual_harvest_date).toLocaleDateString()}
-                          {log.actual_harvest_time && ` at ${log.actual_harvest_time}`}
-                        </p>
-                        {log.recommended_harvest_date && (
+                harvestLogs.map((log) => {
+                  const actualDate = new Date(log.actual_harvest_date);
+                  const recommendedDate = log.recommended_harvest_date 
+                    ? new Date(log.recommended_harvest_date)
+                    : null;
+                  
+                  let daysDifference = null;
+                  let comparisonText = "";
+                  let comparisonColor = "";
+                  
+                  if (recommendedDate) {
+                    daysDifference = Math.floor(
+                      (actualDate.getTime() - recommendedDate.getTime()) / (1000 * 60 * 60 * 24)
+                    );
+                    
+                    if (daysDifference === 0) {
+                      comparisonText = "Perfect timing! ✓";
+                      comparisonColor = "text-green-600";
+                    } else if (daysDifference > 0) {
+                      comparisonText = `${daysDifference} days late`;
+                      comparisonColor = "text-orange-600";
+                    } else {
+                      comparisonText = `${Math.abs(daysDifference)} days early`;
+                      comparisonColor = "text-blue-600";
+                    }
+                  }
+                  
+                  return (
+                    <div key={log.id} className="border rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-foreground">{log.crop_type}</h4>
                           <p className="text-sm text-muted-foreground">
-                            Recommended: {new Date(log.recommended_harvest_date).toLocaleDateString()}
+                            Harvested: {actualDate.toLocaleDateString()}
+                            {log.actual_harvest_time && ` at ${log.actual_harvest_time}`}
                           </p>
-                        )}
-                        {log.notes && (
-                          <p className="text-sm text-muted-foreground mt-1">{log.notes}</p>
-                        )}
+                          {recommendedDate && (
+                            <>
+                              <p className="text-sm text-muted-foreground">
+                                Recommended: {recommendedDate.toLocaleDateString()}
+                              </p>
+                              <p className={`text-sm font-medium mt-1 ${comparisonColor}`}>
+                                {comparisonText}
+                              </p>
+                            </>
+                          )}
+                          {log.notes && (
+                            <p className="text-sm text-muted-foreground mt-2 italic">
+                              "{log.notes}"
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteHarvestLog(log.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteHarvestLog(log.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </CardContent>

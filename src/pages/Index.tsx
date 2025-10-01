@@ -68,12 +68,17 @@ const Index = () => {
                 <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <Droplets className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl">Rainfall Monitoring</CardTitle>
+                <CardTitle className="text-xl">Rainfall Analytics</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base text-center">
-                  Real-time precipitation data and historical rainfall patterns to inform your farming decisions with precision.
+                  Track daily, monthly, and yearly rainfall data with interactive charts. View historical patterns from 2015 onwards to make data-driven decisions about irrigation and planting schedules.
                 </CardDescription>
+                <div className="mt-4 text-center">
+                  <Button asChild variant="link" size="sm">
+                    <Link to="/rainfall">View Analytics →</Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -82,26 +87,17 @@ const Index = () => {
                 <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <MapPin className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl">Geographic Mapping</CardTitle>
+                <CardTitle className="text-xl">Interactive Map</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base text-center">
-                  Interactive maps of Bayombong showing topographical data and farming zones for better planning.
+                  Explore Bayombong with detailed geographic maps showing topography, farm locations, and weather zones. Useful for planning field layouts and understanding local climate variations.
                 </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="group border-border/40 hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardHeader className="text-center">
-                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <TrendingUp className="h-8 w-8 text-primary" />
+                <div className="mt-4 text-center">
+                  <Button asChild variant="link" size="sm">
+                    <Link to="/map">Open Map →</Link>
+                  </Button>
                 </div>
-                <CardTitle className="text-xl">Data Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base text-center">
-                  Advanced charts and visualizations to track trends and make informed predictions about crop yields.
-                </CardDescription>
               </CardContent>
             </Card>
 
@@ -110,12 +106,36 @@ const Index = () => {
                 <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <Calendar className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl">Planting Calendar</CardTitle>
+                <CardTitle className="text-xl">Planting Recommendations</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base text-center">
-                  Optimized planting and harvesting schedules based on weather patterns and crop cycles for maximum yield.
+                  Get AI-generated planting and harvesting schedules based on historical rainfall data. The system automatically suggests optimal dates for both inbred and hybrid rice varieties.
                 </CardDescription>
+                <div className="mt-4 text-center">
+                  <Button asChild variant="link" size="sm">
+                    <Link to="/recommendation">View Calendar →</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group border-border/40 hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <TrendingUp className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Harvest Tracker</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-base text-center">
+                  Log your actual harvest dates and compare them with system recommendations. Track crop performance over time and identify patterns to improve future yields.
+                </CardDescription>
+                <div className="mt-4 text-center">
+                  <Button asChild variant="link" size="sm">
+                    <Link to="/harvest-logger">Log Harvest →</Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

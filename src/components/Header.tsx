@@ -18,7 +18,13 @@ const Header = () => {
     { to: "/smart-system", label: "Smart System" },
     { to: "/harvest-logger", label: "Harvest Logger" },
     { to: "/harvest-comparison", label: "Analysis" },
+    { to: "/typhoon-tracker", label: "Typhoon Tracker" },
     { to: "/profile", label: "Profile" },
+  ];
+
+  const adminLinks = [
+    { to: "/admin", label: "Admin Panel" },
+    { to: "/user-management", label: "User Management" },
   ];
 
   return (
@@ -51,19 +57,22 @@ const Header = () => {
 
           {user ? (
             <>
-              <NavLink
-                to="/admin"
-                className={({ isActive }) =>
-                  cn(
-                    "transition-all duration-200 px-3 py-2 rounded-md text-sm font-medium",
-                    isActive 
-                      ? "bg-primary-foreground/20 text-primary-foreground" 
-                      : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-                  )
-                }
-              >
-                Admin
-              </NavLink>
+              {adminLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    cn(
+                      "transition-all duration-200 px-3 py-2 rounded-md text-sm font-medium",
+                      isActive 
+                        ? "bg-primary-foreground/20 text-primary-foreground" 
+                        : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                    )
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ))}
               <Button
                 variant="ghost"
                 size="sm"
@@ -179,20 +188,23 @@ const Header = () => {
 
             {user ? (
               <>
-                <NavLink
-                  to="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    cn(
-                      "block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200",
-                      isActive 
-                        ? "bg-primary-foreground/20 text-primary-foreground" 
-                        : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-                    )
-                  }
-                >
-                  Admin
-                </NavLink>
+                {adminLinks.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        "block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                        isActive 
+                          ? "bg-primary-foreground/20 text-primary-foreground" 
+                          : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                      )
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
                 <Button
                   variant="ghost"
                   size="sm"

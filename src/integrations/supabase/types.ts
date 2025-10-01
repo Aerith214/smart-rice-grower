@@ -199,6 +199,48 @@ export type Database = {
         }
         Relationships: []
       }
+      typhoons: {
+        Row: {
+          affected_areas: string | null
+          category: string | null
+          created_at: string
+          damage_description: string | null
+          date_entered: string
+          date_exited: string | null
+          id: string
+          max_wind_speed: number | null
+          name: string
+          rainfall_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          affected_areas?: string | null
+          category?: string | null
+          created_at?: string
+          damage_description?: string | null
+          date_entered: string
+          date_exited?: string | null
+          id?: string
+          max_wind_speed?: number | null
+          name: string
+          rainfall_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          affected_areas?: string | null
+          category?: string | null
+          created_at?: string
+          damage_description?: string | null
+          date_entered?: string
+          date_exited?: string | null
+          id?: string
+          max_wind_speed?: number | null
+          name?: string
+          rainfall_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
