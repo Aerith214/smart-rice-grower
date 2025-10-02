@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSEO } from "@/hooks/useSEO";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calendar,
@@ -41,7 +42,7 @@ const SmartCroppingSystem = () => {
   const [dailyRainfall, setDailyRainfall] = useState<DailyRainfallData[]>([]);
   const [manualRainfall, setManualRainfall] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin } = useAuth();
 
   // Cropping phases definition
   const croppingPhases: Record<string, CroppingPhase> = {
@@ -272,10 +273,6 @@ const SmartCroppingSystem = () => {
         if (data && data.length > 0) {
           setRainfallForecast(data[0].rainfall_amount || 0);
         }
-        
-        // Check if user is admin (simplified - in production use proper role checking)
-        const { data: { user } } = await supabase.auth.getUser();
-        setIsAdmin(!!user); // For now, any authenticated user is admin
       } catch (error) {
         console.error('Error loading rainfall data:', error);
       } finally {

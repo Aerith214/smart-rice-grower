@@ -22,7 +22,7 @@ interface UserProfile {
 }
 
 const UserManagement = () => {
-  const { user, loading } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -37,8 +37,10 @@ const UserManagement = () => {
   useEffect(() => {
     if (!loading && !user) {
       navigate('/admin-auth');
+    } else if (!loading && user && !isAdmin) {
+      navigate('/');
     }
-  }, [user, loading, navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     if (user) {

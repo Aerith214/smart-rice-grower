@@ -32,7 +32,7 @@ interface Typhoon {
 }
 
 const TyphoonTracker = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [typhoons, setTyphoons] = useState<Typhoon[]>([]);
@@ -201,17 +201,18 @@ const TyphoonTracker = () => {
         </p>
       </header>
 
-      <div className="mb-6">
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Cloud className="mr-2 h-4 w-4" />
-              Record New Typhoon
-            </Button>
-          </DialogTrigger>
+      {isAdmin && (
+        <div className="mb-6">
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button>
+                <Cloud className="mr-2 h-4 w-4" />
+                Record New Typhoon
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingTyphoon ? 'Edit' : 'Record'} Typhoon Event</DialogTitle>
@@ -331,7 +332,8 @@ const TyphoonTracker = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+        </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {typhoons.length === 0 ? (
@@ -356,7 +358,7 @@ const TyphoonTracker = () => {
                       <CardDescription>{typhoon.category}</CardDescription>
                     )}
                   </div>
-                  {user && (
+                  {isAdmin && (
                     <div className="flex gap-1">
                       <Button
                         variant="ghost"

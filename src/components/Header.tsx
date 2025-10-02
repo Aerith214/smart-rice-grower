@@ -7,7 +7,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const Header = () => {
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigationLinks = [
@@ -57,7 +57,7 @@ const Header = () => {
 
           {user ? (
             <>
-              {adminLinks.map((link) => (
+              {isAdmin && adminLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
@@ -188,7 +188,7 @@ const Header = () => {
 
             {user ? (
               <>
-                {adminLinks.map((link) => (
+                {isAdmin && adminLinks.map((link) => (
                   <NavLink
                     key={link.to}
                     to={link.to}

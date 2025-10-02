@@ -34,7 +34,7 @@ interface DatabaseRecommendation {
 
 const Admin = () => {
   const { toast } = useToast();
-  const { user, loading } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
   // Helper function to convert month names to numbers
@@ -53,15 +53,17 @@ const Admin = () => {
     canonicalPath: "/admin",
   });
 
-  // Redirect to auth if not logged in
+  // Redirect to auth if not logged in or not admin
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate('/admin-auth');
+    } else if (!loading && user && !isAdmin) {
+      navigate('/');
     }
-  }, [user, loading, navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
   // Show loading while checking auth
-  if (loading) {
+  if (loading || !isAdmin) {
     return (
       <main className="container mx-auto py-8 px-4">
         <div className="text-center">Loading...</div>
