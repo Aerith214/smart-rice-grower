@@ -100,8 +100,8 @@ const CropCycleGraph = ({ plantingLogs, harvestLogs, season }: CropCycleGraphPro
         {
           label: "Your Planting Dates",
           data: userPlantingData,
-          borderColor: color("--accent"),
-          backgroundColor: color("--accent"),
+          borderColor: color("--planting"),
+          backgroundColor: color("--planting"),
           pointRadius: 6,
           pointHoverRadius: 8,
           pointStyle: "triangle",
@@ -110,8 +110,8 @@ const CropCycleGraph = ({ plantingLogs, harvestLogs, season }: CropCycleGraphPro
         {
           label: "Your Harvest Dates",
           data: userHarvestData,
-          borderColor: color("--secondary"),
-          backgroundColor: color("--secondary"),
+          borderColor: color("--harvesting"),
+          backgroundColor: color("--harvesting"),
           pointRadius: 6,
           pointHoverRadius: 8,
           pointStyle: "rect",
