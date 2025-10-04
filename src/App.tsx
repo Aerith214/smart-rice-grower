@@ -3,7 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useUserRole } from "@/hooks/useUserRole";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Header from "@/components/Header";
@@ -23,6 +24,17 @@ import UserManagement from "@/pages/UserManagement";
 import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
+
+// Protected Route Component
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAdmin, loading } = useUserRole();
+  
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+  
+  return isAdmin ? <>{children}</> : <Navigate to="/" replace />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -44,8 +56,8 @@ const App = () => (
             <Route path="/harvest-comparison" element={<HarvestComparison />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/typhoon-tracker" element={<TyphoonTracker />} />
-            <Route path="/user-management" element={<UserManagement />} />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/user-management" element={<AdminRoute><UserManagement /></AdminRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="/user-auth" element={<UserAuth />} />
             <Route path="/admin-auth" element={<AdminAuth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

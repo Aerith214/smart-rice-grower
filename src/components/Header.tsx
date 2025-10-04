@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -8,6 +9,7 @@ import { useState } from "react";
 
 const Header = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin, loading } = useUserRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigationLinks = [
@@ -57,7 +59,7 @@ const Header = () => {
 
           {user ? (
             <>
-              {adminLinks.map((link) => (
+              {!loading && isAdmin && adminLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
@@ -188,7 +190,7 @@ const Header = () => {
 
             {user ? (
               <>
-                {adminLinks.map((link) => (
+                {!loading && isAdmin && adminLinks.map((link) => (
                   <NavLink
                     key={link.to}
                     to={link.to}
