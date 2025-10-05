@@ -31,7 +31,8 @@ export default {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',
 					glow: 'hsl(var(--primary-glow))',
-					hover: 'hsl(var(--primary-hover))'
+					hover: 'hsl(var(--primary-hover))',
+					light: 'hsl(var(--primary-light))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -82,13 +83,17 @@ export default {
 					DEFAULT: 'hsl(var(--harvesting))',
 					foreground: 'hsl(var(--harvesting-foreground))'
 				},
-				'user-accent': {
-					DEFAULT: 'hsl(var(--user-accent))',
-					foreground: 'hsl(var(--user-accent-foreground))'
+				'user-primary': {
+					DEFAULT: 'hsl(var(--user-primary))',
+					foreground: 'hsl(var(--user-primary-foreground))',
+					glow: 'hsl(var(--user-glow))',
+					light: 'hsl(var(--user-light))'
 				},
-				'admin-accent': {
-					DEFAULT: 'hsl(var(--admin-accent))',
-					foreground: 'hsl(var(--admin-accent-foreground))'
+				'admin-primary': {
+					DEFAULT: 'hsl(var(--admin-primary))',
+					foreground: 'hsl(var(--admin-primary-foreground))',
+					glow: 'hsl(var(--admin-glow))',
+					light: 'hsl(var(--admin-light))'
 				}
 			},
 			borderRadius: {
