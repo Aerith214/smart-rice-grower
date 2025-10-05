@@ -30,7 +30,11 @@ const Header = () => {
   ];
 
   return (
-    <header className="relative bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg overflow-hidden">
+    <header className={`relative shadow-lg overflow-hidden ${
+      isAdmin 
+        ? 'bg-gradient-to-r from-admin-primary to-admin-glow text-white' 
+        : 'bg-gradient-to-r from-primary to-primary-glow text-primary-foreground'
+    }`}>
       {/* Animated background pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
       
