@@ -40,7 +40,7 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center gap-6">
-          {navigationLinks.map((link) => (
+          {user && navigationLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
@@ -170,7 +170,7 @@ const Header = () => {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-primary/95 backdrop-blur-sm border-t border-primary-foreground/20">
           <div className="container mx-auto py-4 px-4 space-y-2">
-            {navigationLinks.map((link) => (
+            {user && navigationLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
