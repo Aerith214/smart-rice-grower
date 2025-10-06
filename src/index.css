@@ -71,16 +71,16 @@ All colors MUST be HSL.
     --harvesting-foreground: 0 0% 100%;
     
     /* User and Admin color schemes */
-    --user-primary: 120 55% 45%;
+    --user-primary: 210 100% 50%;
     --user-primary-foreground: 0 0% 100%;
-    --user-glow: 120 60% 55%;
-    --user-light: 120 50% 95%;
+    --user-glow: 210 100% 60%;
+    --user-light: 210 100% 95%;
     --gradient-user: linear-gradient(135deg, hsl(var(--user-primary)) 0%, hsl(var(--user-glow)) 100%);
     
-    --admin-primary: 140 50% 25%;
+    --admin-primary: 0 85% 55%;
     --admin-primary-foreground: 0 0% 100%;
-    --admin-glow: 140 55% 35%;
-    --admin-light: 140 45% 90%;
+    --admin-glow: 15 90% 60%;
+    --admin-light: 0 100% 95%;
     --gradient-admin: linear-gradient(135deg, hsl(var(--admin-primary)) 0%, hsl(var(--admin-glow)) 100%);
   }
 }
