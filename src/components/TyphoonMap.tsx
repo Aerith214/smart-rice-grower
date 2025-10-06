@@ -89,11 +89,17 @@ const TyphoonMap = () => {
 
         // Fetch tropical cyclones data with track and forecast
         const response = await fetch(
-          `https://data.api.xweather.com/tropicalcyclones?client_id=${XWEATHER_CLIENT_ID}&client_secret=${XWEATHER_CLIENT_SECRET}&filter=active&limit=20&fields=id,name,basin,position,movement,wind,pressure,category`
+          `https://data.api.xweather.com/tropicalcyclones?client_id=${XWEATHER_CLIENT_ID}&client_secret=${XWEATHER_CLIENT_SECRET}&filter=active&limit=20&fields=id,name,basin,position,movement,wind,pressure,category&include=track,forecast`
         );
 
         if (!response.ok) {
-          throw new Error(`API Error: ${response.status}`);
+          try {
+            const errJson = await response.json();
+            const desc = errJson?.error?.description || `API Error: ${response.status}`;
+            throw new Error(desc);
+          } catch {
+            throw new Error(`API Error: ${response.status}`);
+          }
         }
 
         const data = await response.json();
@@ -283,8 +289,13 @@ const TyphoonMap = () => {
 
       {error && !loading && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] max-w-md">
-          <div className="rounded-md bg-muted px-4 py-2 text-sm shadow-lg border">
-            {error}
+          <div className="rounded-md bg-muted px-4 py-2 text-sm shadow-lg border space-y-1">
+            <div>{error}</div>
+            {typeof error === 'string' && error.toLowerCase().includes('namespace') && (
+              <div className="text-xs text-muted-foreground">
+                Add this domain to Xweather Namespace: {typeof window !== 'undefined' ? window.location.hostname : ''} (also include *.lovableproject.com and *.lovable.app)
+              </div>
+            )}
           </div>
         </div>
       )}
