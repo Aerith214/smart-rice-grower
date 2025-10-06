@@ -89,7 +89,7 @@ const TyphoonMap = () => {
 
         // Fetch tropical cyclones data with track and forecast
         const response = await fetch(
-          `https://api.aerisapi.com/tropicalcyclones?client_id=${XWEATHER_CLIENT_ID}&client_secret=${XWEATHER_CLIENT_SECRET}&filter=active&limit=20&fields=id,name,basin,position,movement,wind,pressure,category&include=track,forecast`
+          `https://data.api.xweather.com/tropicalcyclones?client_id=${XWEATHER_CLIENT_ID}&client_secret=${XWEATHER_CLIENT_SECRET}&filter=active&limit=20&fields=id,name,basin,position,movement,wind,pressure,category`
         );
 
         if (!response.ok) {
