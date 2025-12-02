@@ -200,6 +200,7 @@ export type Database = {
         Row: {
           contact_number: string | null
           created_at: string
+          email_verified: boolean
           farm_location: string | null
           farm_name: string | null
           full_name: string | null
@@ -213,6 +214,7 @@ export type Database = {
         Insert: {
           contact_number?: string | null
           created_at?: string
+          email_verified?: boolean
           farm_location?: string | null
           farm_name?: string | null
           full_name?: string | null
@@ -226,6 +228,7 @@ export type Database = {
         Update: {
           contact_number?: string | null
           created_at?: string
+          email_verified?: boolean
           farm_location?: string | null
           farm_name?: string | null
           full_name?: string | null
