@@ -6,7 +6,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Eye, Check, X, Trash2, Search, Filter } from "lucide-react";
+import { Users, Eye, Check, X, Trash2, Search, Filter, Mail, MailX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,6 +40,7 @@ interface UserProfile {
   farm_location: string | null;
   role: string | null;
   status: 'pending' | 'approved' | 'rejected';
+  email_verified: boolean;
   created_at: string;
 }
 
@@ -247,11 +248,17 @@ const UserManagement = () => {
       </Card>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
         <Card>
           <CardContent className="pt-4 pb-4">
             <div className="text-2xl font-bold">{users.length}</div>
             <div className="text-sm text-muted-foreground">Total Users</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-4">
+            <div className="text-2xl font-bold text-orange-600">{users.filter(u => !u.email_verified).length}</div>
+            <div className="text-sm text-muted-foreground">Unverified Email</div>
           </CardContent>
         </Card>
         <Card>
@@ -294,6 +301,7 @@ const UserManagement = () => {
                   <TableRow>
                     <TableHead>Username</TableHead>
                     <TableHead>Full Name</TableHead>
+                    <TableHead>Email Verified</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Registered</TableHead>
@@ -305,6 +313,19 @@ const UserManagement = () => {
                     <TableRow key={profile.id}>
                       <TableCell className="font-medium">{profile.username}</TableCell>
                       <TableCell>{profile.full_name || '-'}</TableCell>
+                      <TableCell>
+                        {profile.email_verified ? (
+                          <Badge className="bg-green-600 hover:bg-green-700 gap-1">
+                            <Mail className="h-3 w-3" />
+                            Verified
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="bg-orange-500/20 text-orange-700 dark:text-orange-400 gap-1">
+                            <MailX className="h-3 w-3" />
+                            Unverified
+                          </Badge>
+                        )}
+                      </TableCell>
                       <TableCell>{getRoleBadge(profile.role)}</TableCell>
                       <TableCell>{getStatusBadge(profile.status)}</TableCell>
                       <TableCell>{new Date(profile.created_at).toLocaleDateString()}</TableCell>

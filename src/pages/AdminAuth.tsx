@@ -27,30 +27,73 @@ const AdminAuth = () => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Redirect to admin panel if logged in
-        if (session?.user) {
-          navigate('/admin');
+        // Handle email verification - update profile when email is confirmed
+        if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
+          setTimeout(async () => {
+            const { error } = await supabase
+              .from('profiles')
+              .update({ email_verified: true })
+              .eq('user_id', session.user.id);
+            
+            if (error) {
+              console.error('Error updating email_verified:', error);
+            }
+          }, 0);
+        }
+        
+        // Check if this is an email verification callback
+        if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(async () => {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('status, email_verified')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+            
+            // If email just got verified, show message and sign out
+            if (session.user.email_confirmed_at && profileData?.status === 'pending') {
+              await supabase.auth.signOut();
+              toast({
+                title: "Email Verified!",
+                description: "Your email has been verified. Please wait for admin approval before you can log in.",
+                duration: 10000,
+              });
+              return;
+            }
+            
+            // Only redirect to admin panel if fully approved
+            if (profileData?.email_verified && profileData?.status === 'approved') {
+              navigate('/admin');
+            }
+          }, 0);
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
-      // Redirect to admin panel if already logged in
       if (session?.user) {
-        navigate('/admin');
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('status, email_verified')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        
+        if (profileData?.email_verified && profileData?.status === 'approved') {
+          navigate('/admin');
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   // Password validation utilities
   const validatePassword = (password: string) => {
@@ -121,8 +164,9 @@ const AdminAuth = () => {
       }
 
       toast({
-        title: "Admin Registration Successful!",
-        description: "Please check your email to confirm your admin account before signing in.",
+        title: "Admin Registration Submitted!",
+        description: "Please verify your email to continue your registration. Check your inbox for a verification link.",
+        duration: 10000,
       });
     } catch (error: any) {
       toast({
@@ -155,11 +199,11 @@ const AdminAuth = () => {
         throw error;
       }
 
-      // Check user status after successful authentication
+      // Check email verification and user status after successful authentication
       if (data.user) {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('status')
+          .select('status, email_verified')
           .eq('user_id', data.user.id)
           .maybeSingle();
 
@@ -168,12 +212,26 @@ const AdminAuth = () => {
         }
 
         const userStatus = profileData?.status;
+        const emailVerified = profileData?.email_verified;
 
+        // Check email verification first
+        if (!emailVerified) {
+          await supabase.auth.signOut();
+          toast({
+            title: "Email Not Verified",
+            description: "Please verify your email before logging in. Check your inbox for the verification link.",
+            variant: "destructive",
+            duration: 8000,
+          });
+          return;
+        }
+
+        // Then check account status
         if (userStatus === 'pending') {
           await supabase.auth.signOut();
           toast({
             title: "Account Pending",
-            description: "Your account is still pending admin approval. Please wait for approval.",
+            description: "Your account is awaiting admin approval. Please wait for approval.",
             variant: "destructive",
             duration: 8000,
           });
@@ -184,7 +242,7 @@ const AdminAuth = () => {
           await supabase.auth.signOut();
           toast({
             title: "Account Rejected",
-            description: "Your registration was rejected. Please contact the administrator for more information.",
+            description: "Your registration was rejected. You cannot access the system.",
             variant: "destructive",
             duration: 8000,
           });
