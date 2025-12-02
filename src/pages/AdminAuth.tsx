@@ -139,7 +139,7 @@ const AdminAuth = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -153,6 +153,43 @@ const AdminAuth = () => {
           throw new Error("Please confirm your email address before signing in.");
         }
         throw error;
+      }
+
+      // Check user status after successful authentication
+      if (data.user) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('user_id', data.user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        }
+
+        const userStatus = profileData?.status;
+
+        if (userStatus === 'pending') {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account Pending",
+            description: "Your account is still pending admin approval. Please wait for approval.",
+            variant: "destructive",
+            duration: 8000,
+          });
+          return;
+        }
+
+        if (userStatus === 'rejected') {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account Rejected",
+            description: "Your registration was rejected. Please contact the administrator for more information.",
+            variant: "destructive",
+            duration: 8000,
+          });
+          return;
+        }
       }
 
       toast({

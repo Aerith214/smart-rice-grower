@@ -121,8 +121,9 @@ const UserAuth = () => {
       }
 
       toast({
-        title: "Registration Successful!",
-        description: "Please check your email to confirm your account before signing in.",
+        title: "Registration Submitted!",
+        description: "Your registration is awaiting admin approval. You will be notified once approved.",
+        duration: 10000,
       });
     } catch (error: any) {
       toast({
@@ -139,7 +140,7 @@ const UserAuth = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -153,6 +154,43 @@ const UserAuth = () => {
           throw new Error("Please confirm your email address before signing in.");
         }
         throw error;
+      }
+
+      // Check user status after successful authentication
+      if (data.user) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('user_id', data.user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        }
+
+        const userStatus = profileData?.status;
+
+        if (userStatus === 'pending') {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account Pending",
+            description: "Your account is still pending admin approval. Please wait for approval.",
+            variant: "destructive",
+            duration: 8000,
+          });
+          return;
+        }
+
+        if (userStatus === 'rejected') {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account Rejected",
+            description: "Your registration was rejected. Please contact the administrator for more information.",
+            variant: "destructive",
+            duration: 8000,
+          });
+          return;
+        }
       }
 
       toast({
