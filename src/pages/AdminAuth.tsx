@@ -179,6 +179,9 @@ const AdminAuth = () => {
     }
   };
 
+  // Super Admin email constant
+  const SUPER_ADMIN_EMAIL = 'arictediguzman@gmail.com';
+
   const handleSignIn = async (email: string, password: string) => {
     setLoading(true);
     
@@ -201,6 +204,18 @@ const AdminAuth = () => {
 
       // Check email verification and user status after successful authentication
       if (data.user) {
+        // Super Admin bypass - no verification or approval needed
+        const isSuperAdmin = data.user.email === SUPER_ADMIN_EMAIL;
+        
+        if (isSuperAdmin) {
+          toast({
+            title: "Super Admin Login Successful!",
+            description: "Welcome to SmartRice Admin Panel!",
+          });
+          navigate('/admin');
+          return;
+        }
+
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('status, email_verified')
@@ -231,7 +246,7 @@ const AdminAuth = () => {
           await supabase.auth.signOut();
           toast({
             title: "Account Pending",
-            description: "Your account is awaiting admin approval. Please wait for approval.",
+            description: "Your account is awaiting Super Admin approval. Please wait for approval.",
             variant: "destructive",
             duration: 8000,
           });
@@ -254,6 +269,7 @@ const AdminAuth = () => {
         title: "Admin Login Successful!",
         description: "Welcome to SmartRice Admin Panel!",
       });
+      navigate('/admin');
     } catch (error: any) {
       toast({
         title: "Login Error",
