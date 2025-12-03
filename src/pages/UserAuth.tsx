@@ -234,7 +234,7 @@ const UserAuth = () => {
           await supabase.auth.signOut();
           toast({
             title: "Account Pending",
-            description: "Your account is awaiting admin approval. Please wait for approval.",
+            description: "Your account is awaiting Super Admin approval. Please wait for approval.",
             variant: "destructive",
             duration: 8000,
           });
@@ -257,6 +257,7 @@ const UserAuth = () => {
         title: "Login Successful!",
         description: "Welcome back to SmartRice!",
       });
+      navigate('/');
     } catch (error: any) {
       toast({
         title: "Login Error",

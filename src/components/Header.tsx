@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -6,11 +6,23 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const { isAdmin, loading } = useUserRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
+    navigate('/user-auth');
+  };
 
   const navigationLinks = [
     { to: "/map", label: "Map" },
@@ -91,7 +103,7 @@ const Header = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={signOut}
+                onClick={handleLogout}
                 className="text-white hover:bg-white/20 border border-white/30 backdrop-blur-sm transition-all duration-300 hover:scale-105"
               >
                 Logout
@@ -229,7 +241,7 @@ const Header = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    signOut();
+                    handleLogout();
                     setMobileMenuOpen(false);
                   }}
                   className="w-full justify-start text-white hover:bg-white/20 border border-white/30 backdrop-blur-sm"
